@@ -4,14 +4,12 @@
 #include <string>
 #include <algorithm>
 
-#include "vec.h"
-#include "mesh.h"
-
 #include "program.h"
 #include "uniforms.h"
-
+#include "buffer.h"
+#include "vec.h"
+#include "mesh.h"
 #include "window.h"
-
 
 int Mesh::create( const GLenum primitives )
 {
@@ -21,9 +19,8 @@ int Mesh::create( const GLenum primitives )
 
 void Mesh::release( )
 {
-    glDeleteVertexArrays(1, &m_vao);
-    glDeleteBuffers(1, &m_buffer);
-    glDeleteBuffers(1, &m_index_buffer);
+    if(m_vao)
+        release_vertex_format(m_vao);
 
     // detruit tous les shaders crees...
     for(auto it= m_state_map.begin(); it != m_state_map.end(); ++it)
@@ -285,7 +282,6 @@ void Mesh::bounds( Point& pmin, Point& pmax )
     }
 }
 
-#if 0
 const void *Mesh::attribute_buffer( const unsigned int id ) const
 {
     assert(id < 4);
@@ -311,12 +307,19 @@ std::size_t Mesh::attribute_buffer_size( const unsigned int id ) const
         default: return 0;
     }
 }
-#endif
+
 
 GLuint Mesh::create_buffers( const bool use_texcoord, const bool use_normal, const bool use_color )
 {
     if(m_positions.size() == 0)
         return 0;
+
+    // ne creer que les buffers necessaires
+    GLuint vao= create_vertex_format();
+    make_vertex_buffer(vao, 0,  3, GL_FLOAT, vertex_buffer_size(), vertex_buffer());
+
+    if(m_indices.size() > 0)
+        make_index_buffer(vao, index_buffer_size(), index_buffer());
 
 #if 1
     if(m_texcoords.size() > 0 && m_texcoords.size() < m_positions.size() && use_texcoord)
@@ -326,101 +329,35 @@ GLuint Mesh::create_buffers( const bool use_texcoord, const bool use_normal, con
     if(m_colors.size() > 0 && m_colors.size() < m_positions.size() && use_color)
         printf("[error] invalid colors array...\n");
 #endif
-    
-    glGenVertexArrays(1, &m_vao);
-    glBindVertexArray(m_vao);
-    
-    // determine la taille du buffer pour stocker tous les attributs et les indices
-    size_t size= vertex_buffer_size() + texcoord_buffer_size() + normal_buffer_size();
-    // allouer le buffer
-    glGenBuffers(1, &m_buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, m_buffer);
-    glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_STATIC_DRAW);
-    
-    // transferer les attributs et configurer le format de sommet (vao)
-    size_t offset= 0;
-    size= vertex_buffer_size();
-    glBufferSubData(GL_ARRAY_BUFFER, offset, size, vertex_buffer());
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (const void *) offset);
-    glEnableVertexAttribArray(0);
-    
+
     if(m_texcoords.size() == m_positions.size() && use_texcoord)
-    {
-        offset= offset + size;
-        size= texcoord_buffer_size();
-        glBufferSubData(GL_ARRAY_BUFFER, offset, size, texcoord_buffer());
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (const void *) offset);
-        glEnableVertexAttribArray(1);
-    }
-    
+        make_vertex_buffer(vao, 1,  2, GL_FLOAT, texcoord_buffer_size(), texcoord_buffer());
     if(m_normals.size() == m_positions.size() && use_normal)
-    {
-        offset= offset + size;
-        size= normal_buffer_size();
-        glBufferSubData(GL_ARRAY_BUFFER, offset, size, normal_buffer());
-        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (const void *) offset);
-        glEnableVertexAttribArray(2);
-    }
-    
+        make_vertex_buffer(vao, 2,  3, GL_FLOAT, normal_buffer_size(), normal_buffer());
     if(m_colors.size() == m_positions.size() && use_color)
-    {
-        offset= offset + size;
-        size= color_buffer_size();
-        glBufferSubData(GL_ARRAY_BUFFER, offset, size, color_buffer());
-        glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 0, (const void *) offset);
-        glEnableVertexAttribArray(3);
-    }
-    
-    // allouer l'index buffer
-    if(index_buffer_size())
-    {
-        glGenBuffers(1, &m_index_buffer);    
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_index_buffer);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_buffer_size(), index_buffer(), GL_STATIC_DRAW);
-    }
+        make_vertex_buffer(vao, 3,  4, GL_FLOAT, color_buffer_size(), color_buffer());
 
     m_update_buffers= false;
-    
-    glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    return m_vao;
+    return vao;
 }
 
 int Mesh::update_buffers( const bool use_texcoord, const bool use_normal, const bool use_color )
 {
     assert(m_vao > 0);
-    assert(m_buffer > 0);
     if(!m_update_buffers)
         return 0;
-    
-    glBindBuffer(GL_ARRAY_BUFFER, m_buffer);
-    
-    size_t offset= 0;
-    size_t size= vertex_buffer_size();
-    glBufferSubData(GL_ARRAY_BUFFER, offset, size, vertex_buffer());
-    
+
+    glBindVertexArray(m_vao);
+    update_vertex_buffer(m_vao, 0, vertex_buffer_size(), vertex_buffer());
+
+    // ne modifier que les attributs des sommets, pas la topologie / structure du maillage
     if(m_texcoords.size() == m_positions.size() && use_texcoord)
-    {
-        offset= offset + size;
-        size= texcoord_buffer_size();
-        glBufferSubData(GL_ARRAY_BUFFER, offset, size, texcoord_buffer());
-    }
-    
+        update_vertex_buffer(m_vao, 1, texcoord_buffer_size(), texcoord_buffer());
     if(m_normals.size() == m_positions.size() && use_normal)
-    {
-        offset= offset + size;
-        size= normal_buffer_size();
-        glBufferSubData(GL_ARRAY_BUFFER, offset, size, normal_buffer());
-    }
-    
+        update_vertex_buffer(m_vao, 2, normal_buffer_size(), normal_buffer());
     if(m_colors.size() == m_positions.size() && use_color)
-    {
-        offset= offset + size;
-        size= color_buffer_size();
-        glBufferSubData(GL_ARRAY_BUFFER, offset, size, color_buffer());
-    }
-    
+        update_vertex_buffer(m_vao, 3, color_buffer_size(), color_buffer());
+
     m_update_buffers= false;
     return 1;
 }
@@ -444,10 +381,9 @@ GLuint Mesh::create_program( const bool use_texcoord, const bool use_normal, con
     //~ printf("--\n%s", definitions.c_str());
     bool use_mesh_color= (m_primitives == GL_POINTS || m_primitives == GL_LINES || m_primitives == GL_LINE_STRIP || m_primitives == GL_LINE_LOOP);
     if(!use_mesh_color)
-        m_program= read_program( smart_path("data/shaders/mesh.glsl"), definitions.c_str());
+        return read_program(  smart_path("data/shaders/mesh.glsl"), definitions.c_str());
     else
-        m_program= read_program( smart_path("data/shaders/mesh_color.glsl"), definitions.c_str());
-    return m_program;
+        return read_program( smart_path("data/shaders/mesh_color.glsl"), definitions.c_str());
 }
 
 
@@ -462,9 +398,7 @@ void Mesh::draw( const Transform& model, const Transform& view, const Transform&
 
     if(m_vao == 0)
         // force la creation de tous les buffers
-        create_buffers(true, true, true);
-    assert(m_vao != 0);
-    
+        m_vao= create_buffers(true, true, true);
     if(m_update_buffers)
         update_buffers(true, true, true);
 
@@ -483,7 +417,7 @@ void Mesh::draw( const Transform& model, const Transform& view, const Transform&
     if(m_program == 0)
     {
         // pas de shader pour ce type de draw
-        create_program(use_texcoord, use_normal, use_color, use_light, use_alpha_test);
+        m_program= create_program(use_texcoord, use_normal, use_color, use_light, use_alpha_test);
         program_print_errors(m_program);
 
         // conserver le shader
@@ -491,8 +425,10 @@ void Mesh::draw( const Transform& model, const Transform& view, const Transform&
     }
 
     // conserve la config du shader selectionne.
-    assert(m_program != 0);
     m_state= key;
+
+    glBindVertexArray(m_vao);
+    glUseProgram(m_program);
 
     program_uniform(m_program, "mesh_color", default_color());
 
@@ -513,20 +449,13 @@ void Mesh::draw( const Transform& model, const Transform& view, const Transform&
         program_uniform(m_program, "light", view(light));       // transforme la position de la source dans le repere camera, comme les normales
         program_uniform(m_program, "light_color", light_color);
     }
-    
+
     if(use_alpha_test)
         program_uniform(m_program, "alpha_min", alpha_min);
-    
-    draw(m_program);
-}
 
-void Mesh::draw( const GLuint program )
-{
-    glBindVertexArray(m_vao);
-    glUseProgram(program);
-    
     if(m_indices.size() > 0)
         glDrawElements(m_primitives, (GLsizei) m_indices.size(), GL_UNSIGNED_INT, 0);
     else
         glDrawArrays(m_primitives, 0, (GLsizei) m_positions.size());
 }
+

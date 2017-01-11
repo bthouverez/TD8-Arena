@@ -2,6 +2,9 @@
  #define LEAP_INPUTREADER_H
 
 #include "Leap.h"
+#include <vec.h>
+#include <color.h>
+
 
 class LeapInputReader
 {
@@ -20,10 +23,10 @@ public:
      */
     void UpdateHandLocations();
     
-    FVector GetLeftPalmLocation();
-    FVector GetLeftFingerLocation();
-    FVector GetRightPalmLocation();
-    FVector GetRightFingerLocation();
+    Leap::Vector GetLeftPalmLocation();
+    Leap::Vector GetLeftFingerLocation();
+    Leap::Vector GetRightPalmLocation();
+    Leap::Vector GetRightFingerLocation();
     bool IsValidInputLastFrame();
     
     
@@ -42,22 +45,22 @@ public:
      Offset to account for position of Leap mount on Oculus headset
      NOTE: for simplicity this is still in Leap coordinates!  This is intended to first correct the Leap coordinates for the fact that the mount positions the Leap a few inches in front of the eyes.  
      */
-    FVector LeapMountOffset;
+    Leap::Vector LeapMountOffset;
 
     /*
      Offset to account for the fact the Leap is head mounted so the proper location to draw the hand to look natural will require some trial and error.
      */
-    FVector LeapHandOffset;
+    Leap::Vector LeapHandOffset;
     
     
 protected:
     Leap::Controller* Controller;
 
     bool ValidInputLastFrame;
-    FVector LeftPalmLocation;
-    FVector LeftFingerLocation;
-    FVector RightPalmLocation;
-    FVector RightFingerLocation;
+    Leap::Vector LeftPalmLocation;
+    Leap::Vector LeftFingerLocation;
+    Leap::Vector RightPalmLocation;
+    Leap::Vector RightFingerLocation;
 };
 
 #endif

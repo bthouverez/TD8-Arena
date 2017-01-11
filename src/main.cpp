@@ -9,6 +9,7 @@
 #include <iostream>
 #include <cstring>
 #include "Leap.h"
+//#include "leapjoystick.h"
 
 using namespace Leap;
 

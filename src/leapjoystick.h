@@ -1,6 +1,8 @@
 #ifndef LEAP_JOYSTICK_H
 #define LEAP_JOYSTICK_H
 
+#include <vec.h>
+
 class LeapJoystick
 {
 public:
@@ -9,17 +11,14 @@ public:
      */
     LeapJoystick();
     ~LeapJoystick();
-    
     /*
      This method calculates the forward and right movement speeds as well as the turn rate.  The intended use is that this method should be called first, and then the values retrieved through the 3 corresponding Getter methods.
-     
      */
-    void CalculateMovementFromHandLocation(FVector PalmLocation, FVector FingerLocation);
+    void CalculateMovementFromHandLocation(Vector PalmLocation, Vector FingerLocation);
     
     float GetForwardMovement();
     float GetRightMovement();
     float GetTurnRate();
-    
     
     float ActivationDiskRadius;
     float MovementDiskHeight;
@@ -31,11 +30,10 @@ public:
     float TurnAngleToRateScale;
     float DeactivationBufferHeight;
     float SpeedScalingFactor;
-    
     /*
      Location to draw activation disk
      */
-    FVector ActivationDiskLocation;
+    Vector ActivationDiskLocation;
     
 protected:
     
@@ -43,13 +41,11 @@ protected:
      The speed function is nonlinear so that the character can move fluidly either fast or slow.
      */
     float CalculateSpeed(float PositionOnMotionDonutAxis);
-    
     float ForwardMovement;
     float RightMovement;
     float TurnRate;
-    
     bool IsActivated;
-    FVector DiskLocation; // in Character space
+    Vector DiskLocation; // in Character space
 };
 
 #endif

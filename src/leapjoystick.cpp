@@ -1,9 +1,6 @@
 #include "leapjoystick.h"
 
-VirtualJoystick3D::VirtualJoystick3D(ACharacter* Character)
-{
-    this->Character = Character;
-    
+/*{    
     ActivationDiskRadius = 20.0;
     MovementDiskHeight = 0.7;
     MovementDiskRadius = 10.0;
@@ -20,36 +17,37 @@ VirtualJoystick3D::VirtualJoystick3D(ACharacter* Character)
     TurnRate = 0.f;
     IsActivated = false;
     
-    ActivationDiskLocation = FVector(60.0, -10.0, 45.0);
+    ActivationDiskLocation = Vector(60.0, -10.0, 45.0);
 }
 
-VirtualJoystick3D::~VirtualJoystick3D()
+LeapJoystick::~LeapJoystick()
 {
+
 }
 
-float VirtualJoystick3D::GetForwardMovement() {
+float LeapJoystick::GetForwardMovement() {
     return ForwardMovement;
 }
 
-float VirtualJoystick3D::GetRightMovement() {
+float LeapJoystick::GetRightMovement() {
     return RightMovement;
 }
 
-float VirtualJoystick3D::GetTurnRate() {
+float LeapJoystick::GetTurnRate() {
     return TurnRate;
 }
 
-void VirtualJoystick3D::CalculateMovementFromHandLocation(FVector PalmLocation, FVector FingerLocation) {
+void LeapJoystick::CalculateMovementFromHandLocation(Vector PalmLocation, Vector FingerLocation) {
     
     // Next figure out if movement disk is activated
     if (FingerLocation.Z > ActivationDiskLocation.Z) {
         if (!IsActivated) {
             // for unactivating crossing the Z plane is fine, but for activating want to make sure we are within the disk.
-            FVector MovementFingerCharacterLocationOnDisk = FingerLocation;
+            Vector MovementFingerCharacterLocationOnDisk = FingerLocation;
             MovementFingerCharacterLocationOnDisk.Z = ActivationDiskLocation.Z;
-            if (FVector::Dist(MovementFingerCharacterLocationOnDisk, ActivationDiskLocation) < ActivationDiskRadius) {
+            if (Vector::Dist(MovementFingerCharacterLocationOnDisk, ActivationDiskLocation) < ActivationDiskRadius) {
                 IsActivated = true;
-                DiskLocation = FVector(PalmLocation.X, PalmLocation.Y, ActivationDiskLocation.Z);
+                DiskLocation = Vector(PalmLocation.X, PalmLocation.Y, ActivationDiskLocation.Z);
             }
         }
     }
@@ -63,9 +61,9 @@ void VirtualJoystick3D::CalculateMovementFromHandLocation(FVector PalmLocation, 
     }
     
     // Next draw Leap Motion Donut
-    FVector CylinderStart;
-    FVector CylinderEnd;
-    FColor CylinderColor = FColor::Cyan;
+    Vector CylinderStart;
+    Vector CylinderEnd;
+    Color CylinderColor = White();
     float CylinderRadius;
     if (IsActivated) {
         // transform back to world space so can draw
@@ -95,13 +93,13 @@ void VirtualJoystick3D::CalculateMovementFromHandLocation(FVector PalmLocation, 
     // Finally check if we need to add character movement based on movement hand/finger position
     if (IsActivated) {
         // project the movement hand palm location onto the plane of the top of the donut
-        FVector MovementHandCharacterLocationOnCylinderTop = PalmLocation;
+        Vector MovementHandCharacterLocationOnCylinderTop = PalmLocation;
         MovementHandCharacterLocationOnCylinderTop.Z = DiskLocation.Z;
-        FVector CursorVectorFromCylinderOrigin = MovementHandCharacterLocationOnCylinderTop - DiskLocation;
-        FVector MovementCursorPositionCharacter = DiskLocation + CursorVectorFromCylinderOrigin.ClampMaxSize(CylinderRadius);
+        Vector CursorVectorFromCylinderOrigin = MovementHandCharacterLocationOnCylinderTop - DiskLocation;
+        Vector MovementCursorPositionCharacter = DiskLocation + CursorVectorFromCylinderOrigin.ClampMaxSize(CylinderRadius);
         // transform "cursor" position back to world space so can draw
-        FVector MovementCursorPositionWorld = Character->GetTransform().TransformPosition(MovementCursorPositionCharacter);
-        DrawDebugSphere(Character->GetWorld(), MovementCursorPositionWorld, 0.4, 12, FColor::Blue);
+        Vector MovementCursorPositionWorld = Character->GetTransform().TransformPosition(MovementCursorPositionCharacter);
+        DrawDebugSphere(Character->GetWorld(), MovementCursorPositionWorld, 0.4, 12, Color::Blue);
         // now calculate forward and right movement
         float ForwardPosition = MovementHandCharacterLocationOnCylinderTop.X - DiskLocation.X;
         float RightPosition = MovementHandCharacterLocationOnCylinderTop.Y - DiskLocation.Y;
@@ -124,7 +122,7 @@ void VirtualJoystick3D::CalculateMovementFromHandLocation(FVector PalmLocation, 
 }
 
 // TODO: tweak non-linear speed function to make it easier to control movement, especially at slower speeds
-float VirtualJoystick3D::CalculateSpeed(float PositionOnMotionDonutAxis) {
+float LeapJoystick::CalculateSpeed(float PositionOnMotionDonutAxis) {
     float Speed = 0.0;
     if ((abs(PositionOnMotionDonutAxis) > MovementDiskDonutHoleRadius)) {  // only add forward movement if we are outside of the donut hole
         float PercentagePosition = (abs(PositionOnMotionDonutAxis) - MovementDiskDonutHoleRadius) / (MovementDiskRadius - MovementDiskDonutHoleRadius);
@@ -132,5 +130,5 @@ float VirtualJoystick3D::CalculateSpeed(float PositionOnMotionDonutAxis) {
         Speed = SpeedFunctionValue * copysign(SpeedScalingFactor, PositionOnMotionDonutAxis); // apply scaling factor and restore the positive/negative direction sign
     }
     return Speed;
-}
+}*/
 
