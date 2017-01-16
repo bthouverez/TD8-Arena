@@ -26,5 +26,7 @@ private:
   static uint64 new_id(){ return ++id_compteur; }
 
   static uint64 id_compteur;
+
+  uint64 id;
 };
 #endif

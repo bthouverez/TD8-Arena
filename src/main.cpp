@@ -8,7 +8,8 @@
 
 #include <iostream>
 #include <cstring>
-#include "Leap.h"
+#include <Leap.h>
+#include <LeapMath.h>
 //#include "leapjoystick.h"
 
 using namespace Leap;

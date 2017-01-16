@@ -2,7 +2,8 @@
 #define OBJECT_3D_HPP
 
 #include "common.hpp"
-#include "gkit/vec.h"
+#include <vec.h>
+#include <mat.h>
 
 
 class Object3D: public Common
@@ -20,9 +21,9 @@ public:
   virtual void release() = 0;  
 
 
-  bool loadOBJ(const std::string & filename)
+  bool loadOBJ(const std::string & filename);
   
-  void getBoundingBox(Point & pmin, Point & pmax) { pmin = this->pmin; pmax = this->pmax; }
+  void getBoundingBox(Point & pmin, Point & pmax) { pmin = this->pmin; pmax = this->pmax; }
 
   void setSpeedMax(float sm) { speedMax = sm; }
 
@@ -39,7 +40,7 @@ protected:
   Point position;  
   Vector orientation;
 
-  Point boxmin, boxmax; // boundingbox;
+  Point pmin, pmax; // boundingbox;
   
   float speed, speedMax;
 
