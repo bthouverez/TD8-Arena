@@ -1,26 +1,40 @@
- #ifndef LEAP_INPUTREADER_H
- #define LEAP_INPUTREADER_H
+#ifndef LEAP_INPUTREADER_H
+#define LEAP_INPUTREADER_H
 
-#include "Leap.h"
+#include <iostream>
+#include <cstring>
+
+#include <Leap.h>
+#include <LeapMath.h>
+
 #include "vec.h"
 #include "color.h"
 
+const std::string fingerNames[] = {"Thumb", "Index", "Middle", "Ring", "Pinky"};
+const std::string boneNames[] = {"Metacarpal", "Proximal", "Middle", "Distal"};
+const std::string stateNames[] = {"STATE_INVALID", "STATE_START", "STATE_UPDATE", "STATE_END"};
+
+class SampleListener : public Leap::Listener {
+public:
+    virtual void onInit(const Leap::Controller&);
+    virtual void onConnect(const Leap::Controller&);
+    virtual void onDisconnect(const Leap::Controller&);
+    virtual void onExit(const Leap::Controller&);
+    virtual void onFrame(const Leap::Controller&);
+    virtual void onFocusGained(const Leap::Controller&);
+    virtual void onFocusLost(const Leap::Controller&);
+    virtual void onDeviceChange(const Leap::Controller&);
+    virtual void onServiceConnect(const Leap::Controller&);
+    virtual void onServiceDisconnect(const Leap::Controller&);
+};
 
 class LeapInputReader
 {
 public:
-    /* 
-     Constructor takes two parameters:  a Leap::Controller and a Character
-     -- the Leap::Controller parameter is so that the controller can be initialized outside of this class, since the Leap::Controller should only be initialized once in an application
-     -- the Character parameter is so that the position of the Leap hands/fingers can be returned in the coordinate space of the Character.  This makes it easier to calculate the desired movement based on these character-space coordinates.
-     */
-    LeapInputReader(Leap::Controller* Controller);
+
+    LeapInputReader();
 	~LeapInputReader();
-    
-    /*
-     As the method name implies, this method calculates the location coordinates in world space of the Leap hand and finger coordinates.  Note that for now this assumes a scaling factor of 0.1, since Leap coordinates are always in millimeters and the default Unreal world scale is 1 Unreal Unit = 1 centimeter.  
-     Note that the intention is that this method should be called first, and then the values retrieved through the available Getter methods. 
-     */
+
     void UpdateHandLocations();
     
     Leap::Vector GetLeftPalmLocation();
@@ -28,19 +42,6 @@ public:
     Leap::Vector GetRightPalmLocation();
     Leap::Vector GetRightFingerLocation();
     bool IsValidInputLastFrame();
-    
-    
-    /*
-     If true - draws minimalist hands just connecting the palm location to the fingertips
-     Making optional in case someone is implementing a proper skeletal animation and doesn't want the hands drawn.
-    */
-    bool LeapDrawSimpleHands;
-    
-    /*
-     Leap Unit is a millimiter and Unreal units are centimeters, so default is 0.1
-     */
-    float LeapToUnrealScalingFactor;
-
     /*
      Offset to account for position of Leap mount on Oculus headset
      NOTE: for simplicity this is still in Leap coordinates!  This is intended to first correct the Leap coordinates for the fact that the mount positions the Leap a few inches in front of the eyes.  
@@ -51,10 +52,13 @@ public:
      Offset to account for the fact the Leap is head mounted so the proper location to draw the hand to look natural will require some trial and error.
      */
     Leap::Vector LeapHandOffset;
-    
+
+    bool LeapDrawSimpleHands;
     
 protected:
-    Leap::Controller* Controller;
+
+    SampleListener listener;
+    Leap::Controller controller;
 
     bool ValidInputLastFrame;
     Leap::Vector LeftPalmLocation;

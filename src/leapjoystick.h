@@ -2,6 +2,7 @@
 #define LEAP_JOYSTICK_H
 
 #include <vec.h>
+#include <color.h>
 
 class LeapJoystick
 {

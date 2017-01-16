@@ -1,6 +1,7 @@
 #include "leapjoystick.h"
-
-/*{    
+/*
+LeapJoystick::LeapJoystick()
+{    
     ActivationDiskRadius = 20.0;
     MovementDiskHeight = 0.7;
     MovementDiskRadius = 10.0;
@@ -40,19 +41,19 @@ float LeapJoystick::GetTurnRate() {
 void LeapJoystick::CalculateMovementFromHandLocation(Vector PalmLocation, Vector FingerLocation) {
     
     // Next figure out if movement disk is activated
-    if (FingerLocation.Z > ActivationDiskLocation.Z) {
+    if (FingerLocation.z > ActivationDiskLocation.z) {
         if (!IsActivated) {
             // for unactivating crossing the Z plane is fine, but for activating want to make sure we are within the disk.
             Vector MovementFingerCharacterLocationOnDisk = FingerLocation;
-            MovementFingerCharacterLocationOnDisk.Z = ActivationDiskLocation.Z;
-            if (Vector::Dist(MovementFingerCharacterLocationOnDisk, ActivationDiskLocation) < ActivationDiskRadius) {
+            MovementFingerCharacterLocationOnDisk.z = ActivationDiskLocation.z;
+            if (distance(MovementFingerCharacterLocationOnDisk, ActivationDiskLocation) < ActivationDiskRadius) {
                 IsActivated = true;
-                DiskLocation = Vector(PalmLocation.X, PalmLocation.Y, ActivationDiskLocation.Z);
+                DiskLocation = Vector(PalmLocation.x, PalmLocation.y, ActivationDiskLocation.z);
             }
         }
     }
     else {
-        if (IsActivated && FingerLocation.Z < (ActivationDiskLocation.Z - DeactivationBufferHeight)) { // have some small buffer for finger going below disk if it's already activated, to make it more robust
+        if (IsActivated && FingerLocation.z < (ActivationDiskLocation.z - DeactivationBufferHeight)) { // have some small buffer for finger going below disk if it's already activated, to make it more robust
             IsActivated = false;
             TurnRate = 0.0;
             ForwardMovement = 0.0;
@@ -94,20 +95,20 @@ void LeapJoystick::CalculateMovementFromHandLocation(Vector PalmLocation, Vector
     if (IsActivated) {
         // project the movement hand palm location onto the plane of the top of the donut
         Vector MovementHandCharacterLocationOnCylinderTop = PalmLocation;
-        MovementHandCharacterLocationOnCylinderTop.Z = DiskLocation.Z;
+        MovementHandCharacterLocationOnCylinderTop.z = DiskLocation.z;
         Vector CursorVectorFromCylinderOrigin = MovementHandCharacterLocationOnCylinderTop - DiskLocation;
         Vector MovementCursorPositionCharacter = DiskLocation + CursorVectorFromCylinderOrigin.ClampMaxSize(CylinderRadius);
         // transform "cursor" position back to world space so can draw
         Vector MovementCursorPositionWorld = Character->GetTransform().TransformPosition(MovementCursorPositionCharacter);
         DrawDebugSphere(Character->GetWorld(), MovementCursorPositionWorld, 0.4, 12, Color::Blue);
         // now calculate forward and right movement
-        float ForwardPosition = MovementHandCharacterLocationOnCylinderTop.X - DiskLocation.X;
-        float RightPosition = MovementHandCharacterLocationOnCylinderTop.Y - DiskLocation.Y;
+        float ForwardPosition = MovementHandCharacterLocationOnCylinderTop.x - DiskLocation.x;
+        float RightPosition = MovementHandCharacterLocationOnCylinderTop.y - DiskLocation.y;
         ForwardMovement = CalculateSpeed(ForwardPosition);
         RightMovement = CalculateSpeed(RightPosition);
         // now calculate angle from palm to middle finger and use that to set turn rate
-        float MovementHandAngleZ = (FingerLocation.Z - PalmLocation.Z);
-        float MovementHandAngleY = (FingerLocation.Y - PalmLocation.Y);
+        float MovementHandAngleZ = (FingerLocation.z - PalmLocation.z);
+        float MovementHandAngleY = (FingerLocation.y - PalmLocation.y);
         float MovementHandAngle = (atan2(MovementHandAngleY, MovementHandAngleZ) * (180 / PI));
         TurnRate = 0.0;
         if (abs(MovementHandAngle) >= TurnAngleThreshold) { // only turn if angle is greater than some threshold
@@ -130,5 +131,6 @@ float LeapJoystick::CalculateSpeed(float PositionOnMotionDonutAxis) {
         Speed = SpeedFunctionValue * copysign(SpeedScalingFactor, PositionOnMotionDonutAxis); // apply scaling factor and restore the positive/negative direction sign
     }
     return Speed;
-}*/
+}
 
+*/
