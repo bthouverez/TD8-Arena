@@ -15,13 +15,7 @@ int Mesh::create( const GLenum primitives )
 
 void Mesh::release( )
 {
-    if(m_vao)
-        release_vertex_format(m_vao);
 
-    // detruit tous les shaders crees...
-    for(auto it= m_state_map.begin(); it != m_state_map.end(); ++it)
-        if(it->second > 0)
-            release_program(it->second);
 }
 
 // definit les attributs du prochain sommet
@@ -138,7 +132,7 @@ Mesh& Mesh::triangle_last( const int a, const int b, const int c )
     m_indices.push_back((int) m_positions.size() + c);
     return *this;
 }
-
+/*
 Mesh& Mesh::restart_strip( )
 {
     m_indices.push_back(~0u);   // ~0u plus grand entier non signe representable
@@ -149,7 +143,7 @@ Mesh& Mesh::restart_strip( )
     glEnable(GL_PRIMITIVE_RESTART_FIXED_INDEX); // n'existe pas sur mac ?!
 #endif
     return *this;
-}
+}*/
 
 
 unsigned int Mesh::mesh_material( const Material& m )
@@ -304,7 +298,7 @@ std::size_t Mesh::attribute_buffer_size( const unsigned int id ) const
     }
 }
 
-
+/*
 GLuint Mesh::create_buffers( const bool use_texcoord, const bool use_normal, const bool use_color )
 {
     if(m_positions.size() == 0)
@@ -455,3 +449,4 @@ void Mesh::draw( const Transform& model, const Transform& view, const Transform&
         glDrawArrays(m_primitives, 0, (GLsizei) m_positions.size());
 }
 
+*/

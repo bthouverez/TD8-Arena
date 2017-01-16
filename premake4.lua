@@ -42,7 +42,7 @@ project("TD8_ARENA")
 	language "C++"
 	kind "ConsoleApp"
 	targetdir "bin/"
-	-- files ( gkit_files )
+	files ( gkit_files )
 	files ( td8_arena_files )
 
 
