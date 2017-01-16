@@ -1,0 +1,37 @@
+###### Installation LEAP SDK ######
+
+# Installer 
+
+	sudo dpkg --install Leap-*-x64.deb
+
+# Creer le fichier : 
+	
+	/lib/systemd/system/leapd.service
+
+# Mettre dedans :
+
+	# Found by Kevin Cole 2014.11.22 at
+	# https://github.com/atejeda/leap-fedora-rpm
+	#
+	# Remember to:
+	#
+	#   ln -s /lib/systemd/system/leapd.service /etc/systemd/system/leapd.service
+	#   systemctl daemon-reload
+	#
+
+	[Unit]
+	Description=LeapMotion Daemon
+	After=syslog.target
+
+	[Service]
+	Type=simple
+	ExecStart=/usr/sbin/leapd
+
+	[Install]
+	WantedBy=multi-user.target
+
+# Faire les liens :
+
+	ln -s /lib/systemd/system/leapd.service /etc/systemd/system/leapd.service
+
+	systemctl daemon-reload
