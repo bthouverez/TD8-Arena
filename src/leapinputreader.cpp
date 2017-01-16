@@ -13,12 +13,12 @@ LeapInputReader::LeapInputReader(Leap::Controller* Controller)
 
 LeapInputReader::~LeapInputReader()
 {
+
 }
 
 bool LeapInputReader::IsValidInputLastFrame() {
     return ValidInputLastFrame;
 }
-
 
 Leap::Vector LeapInputReader::GetLeftPalmLocation() {
     return LeftPalmLocation;

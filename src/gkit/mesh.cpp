@@ -4,12 +4,8 @@
 #include <string>
 #include <algorithm>
 
-#include "program.h"
-#include "uniforms.h"
-#include "buffer.h"
 #include "vec.h"
 #include "mesh.h"
-#include "window.h"
 
 int Mesh::create( const GLenum primitives )
 {
