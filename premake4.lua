@@ -1,7 +1,7 @@
 solution "TD8_ARENA"
 	configurations { "debug", "release" }
 	platforms { "x64"}
-	includedirs { ".", "./src/gkit", "./include" }
+	includedirs { ".", "src/", "./src/gkit", "./include", "/Shared/TP_VTDVR/LIRIS-VISION", "/Shared/TP_VTDVR/LIRIS-VISION/ModulesAndBricks", "/Locals/OpenCV-2.4.10/include", "/Locals/OpenCV-2.4.10/include/opencv", "/Locals/glfw/include", "/Locals/glm/include" }
 	project_dir = path.getabsolute(".")
 	
 	configuration "debug"
@@ -20,7 +20,10 @@ solution "TD8_ARENA"
 		buildoptions { "-flto"}
 		buildoptions { "lib/x64/libLeap.so -Wl,-rpath,lib/x64"}
 		linkoptions  { "-flto"}
-		links        { "GL"}
+    linkoptions  { "/Shared/TP_VTDVR/LIRIS-VISION/ModulesAndBricks/Apicamera/build", "/Shared/TP_VTDVR/LIRIS-VISION/ModulesAndBricks/Calibration/build", "/Locals/OpenCV-2.4.10/lib/", "/Locals/glfw/lib",  }
+		links        { "opencv_core", "opencv_imgproc", "opencv_highgui", "opencv_ml", "opencv_video", "opencv_features2d", "opencv_calib3d", "opencv_objdetect", "opencv_contrib", "opencv_legacy", "opencv_flann", "apicamera", "cameraUVC", "cameraFILE", "cameraOPENCV", "calibration", "glfw3", "pthread", "X11", "Xrandr", "Xinerama", "Xi", "Xxf86vm", "Xcursor", "GLEW", "GL"}
+    -- cette dernière ligne peut poser problème à cause des quotes:
+    linkoptions  { "-Xlinker", "-rpath='/Shared/TP_VTDVR/LIRIS-VISION/ModulesAndBricks/Apicamera/build:/Shared/TP_VTDVR/LIRIS-VISION/ModulesAndBricks/Calibration/build:'" }
 
 	configuration { "linux", "debug" }
 		buildoptions { "-g"}
@@ -33,7 +36,7 @@ solution "TD8_ARENA"
 
  -- description des fichiers communs
 gkit_files = { project_dir .. "/src/gkit/*.cpp", project_dir .. "/src/gkit/*.h" }
-td8_arena_files = { project_dir .. "/src/*.cpp", project_dir .. "/src/*.h" }
+td8_arena_files = { project_dir .. "/src/*.cpp", project_dir .. "/src/*.h*" }
 
 project("TD8_ARENA")
 	language "C++"

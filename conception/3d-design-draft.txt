@@ -1,0 +1,17 @@
+
+But
+===
+
+  1 Vaisseau Joueur
+  n Vaisseaux Ennemis
+  m Astéroïdes 
+
+  Les astéroïdes explosent en petits astéroïdes
+  Les vaisseaux se tirent dessus au laser
+
+
+Conception Rapide
+=================
+
+  Toutes les entités 3D héritent de la classe Object3D.hpp
+  
