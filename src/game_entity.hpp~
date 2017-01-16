@@ -15,7 +15,7 @@ public:
   virtual ~GameEntity(){ }
 
   void setRenderableEntityID(uint64 id) { m_renderable = id; }
-  uint64 getRenderableEntityID() { return m_renderable; }
+  uint64 getRenderableEntityID() { return m_renderable; }
 
   virtual bool init() { return true; }
   virtual void update(float dt) = 0;

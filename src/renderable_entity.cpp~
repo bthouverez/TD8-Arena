@@ -55,7 +55,5 @@ bool RenderableEntity::loadOBJ(const std::string & filename)
 
   glBindVertexArray(0);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-  return true;
 }
 

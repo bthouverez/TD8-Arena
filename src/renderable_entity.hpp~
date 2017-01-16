@@ -14,7 +14,7 @@ public:
   RenderableEntity() : Common() {}
   virtual ~RenderableEntity() { release(); }
 
-  virtual bool init() { return true; }
+  virtual bool init() { }
 
   virtual void draw() = 0;
 
