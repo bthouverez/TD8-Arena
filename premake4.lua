@@ -1,7 +1,7 @@
 solution "TD8_ARENA"
 	configurations { "debug", "release" }
 	platforms { "x64"}
-	includedirs { ".", "src/", "./src/gkit", "./include", "/usr/include/opencv/", "/usr/include/opencv2/", "export/include/" }
+	includedirs { ".", "src/", "./src/gkit", "./include", "/usr/include/opencv/", "/usr/include/opencv2/" }
 	project_dir = path.getabsolute(".")
 	
 	configuration "debug"
@@ -20,9 +20,12 @@ solution "TD8_ARENA"
 		buildoptions { "-flto"}
 		linkoptions  { "lib/x64/libLeap.so -Wl,-rpath=lib/x64"}
 		linkoptions  { "-flto"}
-    	linkoptions  { "-Lexport/lib/" }
-		links        { "opencv_core", "opencv_imgproc", "opencv_highgui", "opencv_ml", "opencv_video", "opencv_features2d", "opencv_calib3d", "opencv_objdetect", "opencv_contrib", "opencv_legacy", "opencv_flann", "apicamera", "cameraUVC", "cameraFILE", "cameraOPENCV", "calibration", "glfw", "pthread", "X11", "Xrandr", "Xinerama", "Xi", "Xxf86vm", "Xcursor", "GLEW", "SDL2", "SDL2_image", "GL"}    
-    	linkoptions  { "-Xlinker", "-rpath=export/lib/" }
+		links        { "opencv_core", "opencv_imgproc", "opencv_highgui", "opencv_ml", "opencv_video", "opencv_features2d", "opencv_calib3d", "opencv_objdetect", "opencv_contrib", "opencv_legacy", "opencv_flann", "glfw", "pthread", "X11", "Xrandr", "Xinerama", "Xi", "Xxf86vm", "Xcursor", "GLEW", "SDL2", "SDL2_image", "GL"}    
+    	
+    	--includedirs  { "export/include/" }
+    	--linkoptions  { "-Lexport/lib/" }
+    	--linkoptions  { "-Xlinker", "-rpath=export/lib/" }
+    	--links 	   {  "apicamera", "cameraUVC", "cameraFILE", "cameraOPENCV", "calibration" }
 
 	configuration { "linux", "debug" }
 		buildoptions { "-g"}

@@ -59,11 +59,11 @@ GLDisplay::~GLDisplay(){cleanGLDisplay();}
 
 void GLDisplay::loadIntrinsics(const cv::Mat & A, const cv::Mat & K)
 {
-    distorsions = glm::vec4(K.at<float>(0), K.at<float>(1), K.at<float>(2), K.at<float>(3));
+    distorsions = glm::vec4(K.at<double>(0), K.at<double>(1), K.at<double>(2), K.at<double>(3));
 
-    intrinsics = glm::mat3(  A.at<float>(0,0), A.at<float>(1,0), A.at<float>(2,0),
-                             A.at<float>(0,1), A.at<float>(1,1), A.at<float>(2,1),
-                             A.at<float>(0,2), A.at<float>(1,2), A.at<float>(2,2));
+    intrinsics = glm::mat3(  A.at<double>(0,0), A.at<double>(1,0), A.at<double>(2,0),
+                             A.at<double>(0,1), A.at<double>(1,1), A.at<double>(2,1),
+                             A.at<double>(0,2), A.at<double>(1,2), A.at<double>(2,2));
 }
 
 void GLDisplay::drawBackground()
@@ -404,24 +404,24 @@ void GLDisplay::calcFrustum()
 void GLDisplay::calcTransformation(const cv::Mat & R, const cv::Mat & T)
 {
     // GTOC Matrix
-    gtoc[0][0] = R.at<float>(0,0);
-    gtoc[1][0] = R.at<float>(1,0);
-    gtoc[2][0] = R.at<float>(2,0);
+    gtoc[0][0] = R.at<double>(0,0);
+    gtoc[1][0] = R.at<double>(1,0);
+    gtoc[2][0] = R.at<double>(2,0);
     gtoc[3][0] = 0.0f;
 
-    gtoc[0][1] = R.at<float>(0,1);
-    gtoc[1][1] = R.at<float>(1,1);
-    gtoc[2][1] = R.at<float>(2,1);
+    gtoc[0][1] = R.at<double>(0,1);
+    gtoc[1][1] = R.at<double>(1,1);
+    gtoc[2][1] = R.at<double>(2,1);
     gtoc[3][1] = 0.0f;
 
-    gtoc[0][2] = R.at<float>(0,2);
-    gtoc[1][2] = R.at<float>(1,2);
-    gtoc[2][2] = R.at<float>(2,2);
+    gtoc[0][2] = R.at<double>(0,2);
+    gtoc[1][2] = R.at<double>(1,2);
+    gtoc[2][2] = R.at<double>(2,2);
     gtoc[3][2] = 0.0f;
 
-    gtoc[0][3] = T.at<float>(0);
-    gtoc[1][3] = T.at<float>(1);
-    gtoc[2][3] = T.at<float>(2);
+    gtoc[0][3] = T.at<double>(0);
+    gtoc[1][3] = T.at<double>(1);
+    gtoc[2][3] = T.at<double>(2);
     gtoc[3][3] = 1.0f;
 }
 

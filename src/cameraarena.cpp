@@ -26,20 +26,73 @@ void CameraArena::show()
 
 void CameraArena::get()
 {
-    camera.read(frame);
+    camera >> frame;
 }
 
-bool CameraArena::intrinsics(const int w, const int h, const float squareSize, const int nb)
+bool CameraArena::extrinsics(const int w, const int h, const float s)
+{
+	cv::Mat rvec,tvec;
+	cv::Mat view = frame.clone();
+
+    cv::Size imageSize, boardSize = cv::Size(w-1,h-1);
+    imageSize = view.size();
+    std::vector<cv::Point2f> pointBuf;
+
+	bool found = cv::findChessboardCorners( view, boardSize, pointBuf,
+        	CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_FAST_CHECK | CV_CALIB_CB_NORMALIZE_IMAGE);
+    if (found)
+    {
+        cv::Mat viewGray;
+        cv::cvtColor(view, viewGray, cv::COLOR_BGR2GRAY);
+        cv::cornerSubPix( viewGray, pointBuf, cv::Size(5,5), cv::Size(5,5), 
+        	cv::TermCriteria( CV_TERMCRIT_EPS+CV_TERMCRIT_ITER, 100, 0.1 ));
+        // Draw the corners on the input
+        cv::drawChessboardCorners( frame, boardSize, cv::Mat(pointBuf), found);
+
+	    std::vector<cv::Point3f> corners;
+	    // 3D projection of the chessboard
+	    for( int i = 0; i < boardSize.height; ++i )
+        for( int j = 0; j < boardSize.width; ++j )
+		{	 
+	        corners.push_back(cv::Point3f(float( j*s ), float( i*s ), 0));
+		}
+
+		bool ext = cv::solvePnP(corners, pointBuf, A, K, rvec, tvec);
+
+		if( ext )
+		{
+			T = tvec.clone();
+    		cv::Rodrigues(rvec,R);
+			/*std::cout << "extrinsics parameters : " << std::endl;
+			std::cout << R << std::endl;
+			std::cout << T << std::endl;*/
+        	double x = T.at<double>(0)/10.;
+        	double y = T.at<double>(1)/10.;
+        	double z = T.at<double>(2)/10.;
+        	double dist = sqrt(x*x+y*y+z*z);
+			std::cout << "Distance = " << dist << std::endl;
+		}
+
+		return ext;
+    }
+    else
+    {
+    	std::cerr <<"No corners found" << std::endl;
+    }
+
+    return found;
+}
+
+bool CameraArena::intrinsics(const int w, const int h, const float s, const int nb)
 {
     std::vector<std::vector<cv::Point2f> > imagePoints;
-    std::vector<cv::Mat> images;
-    cv::Size imageSize , boardSize = cv::Size(w-1,h-1);
+    cv::Size imageSize, boardSize = cv::Size(w-1,h-1);
     const cv::Scalar RED(0,0,255), GREEN(0,255,0);
     int cmp = 0;
 
     while( cmp < nb )
     {
-    	camera >> frame;
+    	get();
     	//images.push_back(frame);
        	cv::Mat view = frame.clone();
         imageSize = view.size();                	// Input Size
@@ -78,16 +131,9 @@ bool CameraArena::intrinsics(const int w, const int h, const float squareSize, c
     // 3D projection of the chessboard
     for( int i = 0; i < boardSize.height; ++i )
         for( int j = 0; j < boardSize.width; ++j )
-            corners.push_back(cv::Point3f(float( j*squareSize ), float( i*squareSize ), 0));
+            corners.push_back(cv::Point3f(float( j*s ), float( i*s ), 0));
 
     objectPoints.resize(imagePoints.size(),corners);
-
-    std::cout << "Size " << imagePoints.size() << std::endl;
-    std::cout << "Size " << imagePoints[0].size() << std::endl;
-    std::cout << "Size " << objectPoints.size() << std::endl;
-    std::cout << "Size " << objectPoints[0].size() << std::endl;
-    std::cout << "Size " << imageSize << std::endl;
-
     //Find intrinsic and extrinsic camera parameters
     double rms = cv::calibrateCamera(objectPoints, imagePoints, imageSize, A,
                                  K, rvecs, tvecs, CV_CALIB_FIX_K4|CV_CALIB_FIX_K5);
