@@ -33,40 +33,38 @@ bool CameraArena::intrinsics(const int w, const int h, const float squareSize, c
 {
     std::vector<std::vector<cv::Point2f> > imagePoints;
     std::vector<cv::Mat> images;
-    cv::Size imageSize , boardSize = cv::Size(w,h);
+    cv::Size imageSize , boardSize = cv::Size(w-1,h-1);
     const cv::Scalar RED(0,0,255), GREEN(0,255,0);
     int cmp = 0;
 
     while( cmp < nb )
     {
     	camera >> frame;
-    	images.push_back(frame);
+    	//images.push_back(frame);
        	cv::Mat view = frame.clone();
         imageSize = view.size();                	// Input Size
         std::vector<cv::Point2f> pointBuf;               // BUffer for matched chessboard points
         // Find matching chessboard
-        bool found = cv::findChessboardCorners( frame, boardSize, pointBuf,
+        bool found = cv::findChessboardCorners( view, boardSize, pointBuf,
         	CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_FAST_CHECK | CV_CALIB_CB_NORMALIZE_IMAGE);
         if (found)
         {
             cv::Mat viewGray;
             cv::cvtColor(view, viewGray, cv::COLOR_BGR2GRAY);
-            cv::cornerSubPix( viewGray, pointBuf, cv::Size(11,11), cv::Size(-1,-1), 
-            	cv::TermCriteria( CV_TERMCRIT_EPS+CV_TERMCRIT_ITER, 30, 0.1 ));
+            cv::cornerSubPix( viewGray, pointBuf, cv::Size(5,5), cv::Size(5,5), 
+            	cv::TermCriteria( CV_TERMCRIT_EPS+CV_TERMCRIT_ITER, 100, 0.1 ));
             // Save the matched points
             imagePoints.push_back(pointBuf);
             // Draw the corners on the input
             cv::drawChessboardCorners( view, boardSize, cv::Mat(pointBuf), found );
-            frame = view.clone();
         	cmp++;
         	std::cerr << cmp << " frames grabbed." << std::endl;
         }
         else
         	std::cerr <<"No corners found" << std::endl;
-
         cv::waitKey(1);
     }
-    
+    std::cout << "Processing calibration ..." << std::endl;
     // Process calibration
     std::vector<cv::Mat> rvecs, tvecs;
     std::vector<float> reprojErrs;
@@ -128,6 +126,6 @@ bool CameraArena::intrinsics(const int w, const int h, const float squareSize, c
 
     std::cout << "Camera Matrix : " << A << std::endl;
     std::cout << "Distorsion Matrix : " << K << std::endl;
-
+	
     return true;
 }

@@ -110,6 +110,10 @@ void SampleListener::onFrame(const Controller& controller) {
         float cos_thumb = thumb_vector.dot(main_vector);
         cos_thumb = cos_thumb < 0 ? -cos_thumb : cos_thumb;
 
+        Vector transv_begin = ring_begin_pos - index_begin_pos;
+        Vector transv_end = ring_end_pos - index_end_pos;
+        Vector transversal = (transv_begin + transv_end).normalized();
+
         // std::cout << "Index" << std::endl;
         // std::cout << "Begin " << index_begin_pos << std::endl;
         // std::cout << "End " << index_end_pos << std::endl;
@@ -127,16 +131,14 @@ void SampleListener::onFrame(const Controller& controller) {
         // std::cout << std::endl;
         // std::cout << std::endl;
 
-        // TODO
-        // DIRECTION
-
 
         // HAUTEUR
-        std::cout << "Hauteur " << palm_pos.y << std::endl;
+        //std::cout << "Hauteur " << palm_pos.y << std::endl;
         if(cos_thumb < 0.8) {
             std::cout << "SHOOT " << std::endl;
         }
-
+        //main_vector.y = pow(main_vector.y,3);
+        //std::cout << "v = "<< main_vector.y << std::endl;
         if(main_vector.y > -0.1 && main_vector.y < 0.1) {
             std::cout << "Stationnaire" << std::endl;
 
@@ -166,6 +168,39 @@ void SampleListener::onFrame(const Controller& controller) {
                 std::cout << "Autre..." << std::endl;
             }
         }
+        // DIRECTION
+        //std::cout << "d = "<< transversal.y << std::endl;
+        if(transversal.y > -0.1 && transversal.y < 0.1) {
+            std::cout << "Tout droit" << std::endl;
+
+        } else {
+            // VITESSE
+            if(transversal.y < -0.1) {
+                if(transversal.y > -0.3) {
+                    std::cout << "Tourne droite leger" << std::endl;
+                } else if(transversal.y > -0.5) {
+                    std::cout << "Tourne droite moyen" << std::endl;
+                } else if(transversal.y > -0.7) {
+                    std::cout << "Tourne droite fort" << std::endl;
+                } else  {
+                    std::cout << "A BABORD TOUTE" << std::endl;
+                }
+            } else if(transversal.y > 0.1) {
+                if(transversal.y < 0.3) {
+                    std::cout << "Tourne gauche leger" << std::endl;
+                } else if(transversal.y < 0.5) {
+                    std::cout << "Tourne gauche moyen" << std::endl;
+                } else if(transversal.y < 0.7) {
+                    std::cout << "Tourne gauche fort" << std::endl;
+                } else  {
+                    std::cout << "A TRIBORD TOUTE" << std::endl;
+                }
+            } else {
+                std::cout << "Autre..." << std::endl;
+            }
+        }
+
+        std::cout << std::endl;
     }
 }
 

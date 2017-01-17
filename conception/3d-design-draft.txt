@@ -29,6 +29,16 @@ Controle du vaisseau
 	La hauteur de la main contrôle la hauteur du vaisseau dans le monde.
 	Un mouvement ample de pouce permet au vaisseau de tirer.
 
-	Idée:
-		Interpoler un plan en prenant la moyenne de X points (précision) et étudier les variations de positionnement du plan
+	Implémentation:
+		- Calcul du vecteur représentant l'index: 
+			- prend le point du joint de départ 
+			- prend le point du joint final
+			- soustrait les deux pour obtenir le vecteur correspondant à l'index
+
+		- Pareil pour l'annulaire (ring finger) et le pouce (thumb finger)
+		- Moyenne des deux vecteurs index et annulaire -> donne le vecteur représentant la main
+
+		- Produit scalaire entre le vecteur de la main et le vecteur du pouce pour pouvoir tirer
+
+		- Vecteur transversaux avec les données de l'index et de l'annulaire pour gérer les virages
 		
