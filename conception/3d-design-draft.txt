@@ -15,3 +15,20 @@ Conception Rapide
 
   Toutes les entités 3D héritent de la classe Object3D.hpp
   
+
+
+
+
+Controle du vaisseau
+====================
+
+	Le vaisseau suit les mouvements de la main:
+	A plat, le vaisseau est en position stationnaire.
+	Penchée en avant (resp. arrière), le vaisseau avance (recule).
+	Inclinée sur la droite (resp. gauche) le vaisseau s'incline aussi et tourne a droite (gauche).
+	La hauteur de la main contrôle la hauteur du vaisseau dans le monde.
+	Un mouvement ample de pouce permet au vaisseau de tirer.
+
+	Idée:
+		Interpoler un plan en prenant la moyenne de X points (précision) et étudier les variations de positionnement du plan
+		
