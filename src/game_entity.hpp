@@ -14,31 +14,101 @@ public:
 
   virtual ~GameEntity(){ }
 
+
   void setRenderableEntityID(uint64 id) { m_renderable = id; }
-  uint64 getRenderableEntityID() { return m_renderable; }
-
-  virtual bool init() { return true; }
-  virtual void update(float dt) = 0;
-  virtual void release() {};  
-
   
-  void getBoundingBox(Point & pmin, Point & pmax) const { pmin = m_pmin; pmax = m_pmax; }
+  uint64 getRenderableEntityID() const { return m_renderable; }
 
-  void setSpeedMax(float smax) { m_speed_max = smax; }
-
-  void incrSpeed(float incr)
+  virtual bool init()
   {
-    m_speed += incr;
+    m_position = Point(0,0,0);
+    m_direction = Vector(1,0,0);
+    m_orientation = Identity();
+    m_speed = 0;
+    m_speed_max = 10.0f;
+    m_scale = 1;
+    return true;
+  }
+  
+  virtual void update(float dt) { updatePosition(); }
+  
+  virtual void release() {}
+
+
+  void setPosition(const Point & p) { m_position = p; }
+
+  const Point & getPosition() const { return m_position; }
+  
+  void setMovingDirection(const Vector & v) { m_direction = v; }
+
+  const Vector & getMovingDirection() const { return m_direction; }
+
+  const Transform & getOrientation() const { return m_orientation; }
+
+  void setOrientation(const Transform & o){ m_orientation = o; }
+
+  void setMaxSpeed(float smax) { m_speed_max = smax; }
+
+  void accelerate(float speed_increment)
+  {
+    m_speed += speed_increment;
     if (m_speed > m_speed_max) m_speed = m_speed_max;
     if (m_speed < 0.0f) m_speed = 0.0f;
   }
 
+  void rotate(const Vector & axis, float angle_degree, bool changeDirection = true)
+  {
+    Transform rot = Rotation(axis, angle_degree);
+    m_orientation = rot * m_orientation;
+    if (changeDirection)
+      m_direction = rot(m_direction);
+  }
+  void rotateX(float angle_degree, bool changeDirection = true)
+  {
+    Transform rot = RotationX(angle_degree);
+    m_orientation = rot * m_orientation;
+    if (changeDirection)
+      m_direction = rot(m_direction);
+  }
+  void rotateY(float angle_degree, bool changeDirection = true)
+  {
+    Transform rot = RotationY(angle_degree);
+    m_orientation = rot * m_orientation;
+    if (changeDirection)
+      m_direction = rot(m_direction);
+  }
+  void rotateZ(float angle_degree, bool changeDirection = true)
+  {
+    Transform rot = RotationZ(angle_degree);
+    m_orientation = rot * m_orientation;
+    if (changeDirection)
+      m_direction = rot(m_direction);
+  }
+
+
+  Transform getModelMatrix() const { return Translation(Vector(m_position)) * m_orientation * Scale(m_scale, m_scale, m_scale); }
+
+  void setScale(float s) { m_scale = s; }
+
+  float getScale() const { return m_scale; }
+  
+  void setBoundingRadius(float radius){ m_boundingRadius = radius; }
+
+  float getBoundingRadius() const { return m_boundingRadius; }
+
+
 protected:
 
-  Transform m_l2w; 
-  Point m_position;  
-  Vector m_orientation;
-  Point m_pmin, m_pmax; // boundingbox;
+  virtual void updatePosition()
+  {
+    m_position = m_position + m_speed * normalize(m_direction);
+  }
+
+  Transform m_orientation;// rotation matrix
+  Vector m_direction; // current moving direction
+  Point m_position;// 3D position  
+  float m_boundingRadius = 0.0f; // bounding sphere
+  float m_scale;// 3D scale
   float m_speed, m_speed_max;  
 
   uint64 m_renderable = 0;

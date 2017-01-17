@@ -10,10 +10,7 @@ public:
   PlayerShip() : Ship() {}
   ~PlayerShip() {}
 
-  virtual void init() {}
-  virtual void update(float dt){}
-  virtual void release() {}
-
+  
 protected:
   
 };

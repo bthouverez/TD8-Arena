@@ -7,14 +7,15 @@
 class Ship: public GameEntity
 {
 public:
-  Asteroid() : GameEntity() {}
-  ~Asteroid() {}
+  Ship() : GameEntity() {}
+  ~Ship() {}
 
-  virtual void init() {}
-  virtual void update(float dt){}
-  virtual void release() {}
+  void setReloadTime(float time) { m_reload_time = time; }
+  bool isReloading() const { return m_time_since_fired < m_reload_time; }
 
+  
 protected:
-  float time_since_fired; // temps écoulé depuis le dernier tir (pour gérer le re-chargement de l'arme, non instantané)
+  float m_time_since_fired; // temps écoulé depuis le dernier tir (pour gérer le re-chargement de l'arme, non instantané)
+  float m_reload_time; // délai entre deux tirs
 };
 #endif

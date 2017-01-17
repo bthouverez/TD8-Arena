@@ -1,9 +1,72 @@
 #include "renderable_entity.hpp"
 
+#include <image.h>
+#include <image_io.h>
 #include <wavefront.h>
 #include <mesh.h>
 #include <vec.h>
 
+
+void RenderableEntity::draw()
+{
+  glBindVertexArray(m_vao);
+  if (m_useindex)
+    glDrawElements(GL_TRIANGLES, m_num_indices, GL_UNSIGNED_INT, 0/* element array buffer offset*/);
+  else 
+    glDrawArrays(GL_TRIANGLES, m_num_vertices, 0);
+}
+
+void RenderableEntity::release()
+{
+  glDeleteVertexArrays(1, &m_vao);
+  glDeleteBuffers(1, &m_vbo);
+  if (m_useindex)
+    glDeleteBuffers(1, &m_ibo);
+  if (m_usetexture)
+    glDeleteTextures(1, &m_texture);
+}
+
+bool RenderableEntity::loadTexture(const std::string & filename, GLuint texel_type)
+{
+  ImageData image = read_image_data(filename.c_str());
+  if(image.data.empty())
+    return false;
+    
+  // cree la texture openGL
+  glGenTextures(1, &m_texture);  
+  glBindTexture(GL_TEXTURE_2D, m_texture);    
+  // fixe les parametres de filtrage par defaut
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+  GLenum format;
+  switch(image.channels)
+  {
+    case 1: format= GL_RED; break;
+    case 2: format= GL_RG; break;
+    case 3: format= GL_RGB; break;
+    case 4: format= GL_RGBA; break;
+    default: format= GL_RGBA; 
+  }
+    
+  GLenum type;
+  switch(image.size)
+  {
+    case 1: type= GL_UNSIGNED_BYTE; break;
+    case 4: type= GL_FLOAT; break;
+    default: type= GL_UNSIGNED_BYTE;
+  }
+    
+  // transfere les donnees dans la texture
+  glTexImage2D(GL_TEXTURE_2D, 0, texel_type, image.width, image.height, 0, format, type, image.buffer());
+    
+  // prefiltre la texture
+  glGenerateMipmap(GL_TEXTURE_2D);
+
+  return true;
+}
 
 bool RenderableEntity::loadOBJ(const std::string & filename)
 {

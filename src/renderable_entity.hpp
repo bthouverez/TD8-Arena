@@ -12,15 +12,23 @@ class RenderableEntity : public Common
 public:
 
   RenderableEntity() : Common() {}
-  virtual ~RenderableEntity() { release(); }
+  virtual ~RenderableEntity() {}
+
 
   virtual bool init() { return true; }
 
-  virtual void draw() = 0;
+  virtual void draw();
 
-  virtual void release() { }
+  virtual void release();
 
-  bool loadOBJ(const std::string & filename);  
+
+  GLuint getTexture() const { return m_texture; }
+
+  void setTexture(GLuint texture){ m_texture = texture; }  
+
+  bool loadTexture(const std::string & filename, GLuint texel_type);
+  
+  bool loadOBJ(const std::string & filename); 
 
 
 protected:

@@ -21,8 +21,7 @@ solution "TD8_ARENA"
 		linkoptions  { "lib/x64/libLeap.so -Wl,-rpath=lib/x64"}
 		linkoptions  { "-flto"}
     	linkoptions  { "-Lexport/lib/" }
-		links        { "opencv_core", "opencv_imgproc", "opencv_highgui", "opencv_ml", "opencv_video", "opencv_features2d", "opencv_calib3d", "opencv_objdetect", "opencv_contrib", "opencv_legacy", "opencv_flann", "apicamera", "cameraUVC", "cameraFILE", "cameraOPENCV", "calibration", "glfw", "pthread", "X11", "Xrandr", "Xinerama", "Xi", "Xxf86vm", "Xcursor", "GLEW", "GL"}
-    
+		links        { "opencv_core", "opencv_imgproc", "opencv_highgui", "opencv_ml", "opencv_video", "opencv_features2d", "opencv_calib3d", "opencv_objdetect", "opencv_contrib", "opencv_legacy", "opencv_flann", "apicamera", "cameraUVC", "cameraFILE", "cameraOPENCV", "calibration", "glfw", "pthread", "X11", "Xrandr", "Xinerama", "Xi", "Xxf86vm", "Xcursor", "GLEW", "SDL2", "SDL2_image", "GL"}    
     	linkoptions  { "-Xlinker", "-rpath=export/lib/" }
 
 	configuration { "linux", "debug" }
