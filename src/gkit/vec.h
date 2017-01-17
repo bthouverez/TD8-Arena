@@ -1,6 +1,6 @@
 
-#ifndef _VEC_H
-#define _VEC_H
+#ifndef _VECTOR_H
+#define _VECTOR_H
 
 
 //! \addtogroup math

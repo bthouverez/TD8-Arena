@@ -1,4 +1,3 @@
-
 #ifndef 	__APICAM_CAMERA_H__
 #define 	__APICAM_CAMERA_H__
 
@@ -7,7 +6,6 @@
 #include <string>
 
 #include "Common/mat44.h"
-
 
 #ifdef D_API_WIN32
 	#define __func__  __FUNCTION__

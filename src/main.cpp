@@ -1,26 +1,21 @@
 #include <iostream>
-#include <opencv2/opencv.hpp>
+
 #include "leapinputreader.h"
+#include "cameraarena.hpp"
 
 int main(int argc, char** argv) {
   // Create LeapInputReader
-  LeapInputReader reader;
+  //LeapInputReader reader;
+  CameraArena cam = CameraArena(1920, 1080, 30);
+
+  cam.intrinsics(6,5,25.5,20);
 
   // Keep this process running until Enter is pressed
   while(true)
   {
-      reader.UpdateHandLocations();
-      
-      if(reader.IsValidInputLastFrame())
-      {
-          std::cout << " Frame OK" << std::endl;
-      }
-      else
-      {
-          std::cout << " Not readable frame" << std:: endl;
-      }
-
-      
+      cam.get();
+      cam.show(); 
+      if(cv::waitKey(1) == 'q') break;
   }
 
   return 0;

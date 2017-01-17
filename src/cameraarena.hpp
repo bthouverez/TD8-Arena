@@ -1,15 +1,57 @@
-#ifndef CAMERA_H
-#define CAMERA_H
+#ifndef CAMERA_ARENA_H
+#define CAMERA_ARENA_H
 
+#include "opencv2/opencv.hpp"
+#include <iostream>
 // includes from liris-vision
 #include "Apicamera/cameraUVC.h"
 #include "Apicamera/cameraOPENCV.h"
 #include "Calibration/chessboardcalibration.h"
 
 // Constructed functions from Starling Export
-void cameraUVC_getFrame( apicamera::CameraUVC *camera, cv::Mat *out1)
+static void cameraUVC_getFrame( apicamera::CameraUVC *camera, cv::Mat *out1)
 {
     cv::Mat(camera->get1Frame()).copyTo(*out1);
+}
+
+static void showImage( const char* windowName, const std::string& scaling, float minValue, float maxValue, const cv::Mat *in)
+{
+    cv::Mat img;
+
+    if( in == NULL || ( in->cols == 0 && in->rows == 0 ) )
+    {
+        // invalid image, display empty image
+        const int w = 200;
+        const int h = 100; 
+        img = cv::Mat( h, w, CV_8UC3, cv::Scalar(0));
+        cv::line( img, cv::Point( 0, 0), cv::Point( w-1, h-1), cv::Scalar(0,0,255), 2);
+        cv::line( img, cv::Point( 0, h-1), cv::Point( w-1, 0), cv::Scalar(0,0,255), 2);
+    }
+    else if( scaling == "Auto" )
+    {
+        // scale image between its min and max values
+        // convert input data to float
+        in->convertTo( img, CV_32F);
+        // normalized in [0,1] to display float image
+        cv::normalize( img, img, 1.0, 0.0, cv::NORM_MINMAX);
+    }
+    else if( scaling == "Manual" )
+    {
+        in->copyTo(img);
+        // scale image between the user defined min and max
+        // truncate pixel values to [minValue, maxValue]
+        cv::min( img, maxValue, img);
+        cv::max( img, minValue, img);
+        // scale values so that [minValue, maxValue] becomes [0,1]
+        in->convertTo( img, CV_32F, 1/(maxValue-minValue), -minValue/(maxValue-minValue));
+    }
+    else
+    {
+        // display input image as it is
+        img = *in;
+    }
+
+    cv::imshow( windowName, img);
 }
 
 class IntrinsicChessboardCalibrator
@@ -18,7 +60,7 @@ public:
     IntrinsicChessboardCalibrator( unsigned int _cbWidth, unsigned int _cbHeight, int _image_count, const char *_intrinsicFileName)
     {
         // initialize camera to store intrinsic parameters
-        camera = new apicamera::CameraOPENCV();
+        camera = new apicamera::CameraUVC();
 
         // initialize calibration
         calibrator = new ChessboardCalibration( camera, _image_count, _cbWidth, _cbHeight, 1.0f);
@@ -67,7 +109,7 @@ public:
 
 protected:
     // camera is used only to store/load/save intrinsic/extrinsic parameters
-    apicamera::CameraOPENCV *camera;
+    apicamera::CameraUVC *camera;
 
     ChessboardCalibration *calibrator;
     const char *intrinsicFileName;
@@ -80,7 +122,7 @@ public:
     ExtrinsicChessboardCalibrator( unsigned int _cbWidth, unsigned int _cbHeight, float _squareSize, const char *_intrinsicFileName, const char *_extrinsicFileName)
     {
         // load intrinsic parameters
-        camera = new apicamera::CameraOPENCV();
+        camera = new apicamera::CameraUVC();
         camera->loadIntrinsicParameters(_intrinsicFileName);
 
         // initialize calibration
@@ -130,26 +172,33 @@ public:
     }
 
     // camera is used only to store/load/save intrinsic/extrinsic parameters
-    apicamera::CameraOPENCV * camera;
+    apicamera::CameraUVC * camera;
 
 protected:
     ChessboardCalibration *calibrator;
     const char *extrinsicFileName;
 };
 
-class Camera{
+class CameraArena{
 public:
-    Camera();
-    ~Camera();
+    CameraArena();
+    CameraArena(const float width, const float height, const float rate, int device = 0);
+    ~CameraArena();
 
-    
+    void show();
+    void get();
+    bool intrinsics(const int, const int, const float, const int);
 
 private:
-    ExtrinsicChessboardCalibrator extrinsics;
-    IntrinsicChessboardCalibrator intrinsics;
+    //ExtrinsicChessboardCalibrator * extrinsics;
+    //IntrinsicChessboardCalibrator * intrinsics;
     
     apicamera::OpenParameters parameters;
-    apicamera::CameraUVC camera;
+    apicamera::CameraUVC camerauvc;
+
+    cv::VideoCapture camera;
+
+    cv::Mat frame, A , K ,  R , T;
 };
 
 #endif
