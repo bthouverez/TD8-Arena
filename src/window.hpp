@@ -2,20 +2,17 @@
 #define WINDOW_HEADER
 
 #include "common.hpp" // GL
+#include <stdio.h>
+#include <stdlib.h>
 
 typedef GLFWwindow NATIVEWINDOW;
 
 
-//FrwdDcl:
-class Window;
 
-static void glfw_key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
-{
-    (void) scancode;
-    (void) mods;
-    if (key == GLFW_KEY_Q && action == GLFW_PRESS)
-        glfwSetWindowShouldClose(Window::getNativeWindow(), GL_TRUE);
-}
+
+//FrwdDcl:
+static void glfw_key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
+
 
 
 //! SINGLETON
@@ -43,6 +40,11 @@ public:
     }
   }
 
+  static bool isActive() 
+  {
+    return not glfwWindowShouldClose(m_instance->m_window);
+  }
+
   //! Swap les buffers et raffraîchit l'écran pour une nouvelle frame.
   static void refresh() 
   {
@@ -52,7 +54,7 @@ public:
 
   static void release()
   {
-    m_instance->release();
+    m_instance->m_release();
   }
 
   static NATIVEWINDOW* getNativeWindow() { return m_instance->m_window; }
@@ -63,11 +65,14 @@ public:
 
 
 private:
+
+  static bool initdone;
+  static Window* m_instance;
+
   explicit Window(bool fullscreen = false) : m_fullscreen(fullscreen) {}
 
   Window(int width, int height) : m_width(width), m_height(height) {}
-
-  Window * m_instance = nullptr;
+  
 
 
   void init()
@@ -108,14 +113,14 @@ private:
     glewExperimental = true; // Needed for core profile
     if (glewInit() != GLEW_OK) {
         fprintf(stderr, "Failed to initialize GLEW\n");
-        return -1;
+        exit(EXIT_FAILURE);
     }  
 
     // keyboard listening:
     glfwSetKeyCallback(m_window, glfw_key_callback);
   }  
 
-  void release()
+  void m_release()
   {
     glfwDestroyWindow(m_window);
     glfwTerminate();  
@@ -128,5 +133,15 @@ private:
   int m_width = 1600, m_height = 900;
   bool m_fullscreen = false;
 };
+
+
+static void glfw_key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
+{
+    (void) scancode;
+    (void) mods;
+    if (key == GLFW_KEY_Q && action == GLFW_PRESS)
+        glfwSetWindowShouldClose(Window::getNativeWindow(), GL_TRUE);
+}
+
 
 #endif

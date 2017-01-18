@@ -95,21 +95,24 @@ bool RenderableEntity::loadOBJ(const std::string & filename)
   glGenBuffers(1, &m_vbo);
   glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
   if (m_usetexture)
-       glBufferData(GL_ARRAY_BUFFER, 2*m_num_vertices * sizeof(vec3) + m_num_vertices *sizeof(vec2), 0, GL_STATIC_DRAW);
-  else glBufferData(GL_ARRAY_BUFFER, 2*m_num_vertices * sizeof(vec3), 0, GL_STATIC_DRAW);
+       glBufferData(GL_ARRAY_BUFFER, 3*m_num_vertices * sizeof(vec3) + m_num_vertices *sizeof(vec2), 0, GL_STATIC_DRAW);
+  else glBufferData(GL_ARRAY_BUFFER, 3*m_num_vertices * sizeof(vec3), 0, GL_STATIC_DRAW);
   glBufferSubData(GL_ARRAY_BUFFER, 0, m_num_vertices * sizeof(vec3), mesh.vertex_buffer());//coords
-  glBufferSubData(GL_ARRAY_BUFFER, m_num_vertices* sizeof(vec3), m_num_vertices*sizeof(vec3), mesh.normal_buffer());//normales
+  glBufferSubData(GL_ARRAY_BUFFER, m_num_vertices* sizeof(vec3), m_num_vertices * sizeof(vec3), mesh.color_buffer());//couleurs
+  glBufferSubData(GL_ARRAY_BUFFER, 2*m_num_vertices* sizeof(vec3), m_num_vertices*sizeof(vec3), mesh.normal_buffer());//normales
   if (m_usetexture)
-      glBufferSubData(GL_ARRAY_BUFFER, 2*m_num_vertices *sizeof(vec3), m_num_vertices*sizeof(vec2), mesh.texcoord_buffer());//texcoords
+      glBufferSubData(GL_ARRAY_BUFFER, 3*m_num_vertices *sizeof(vec3), m_num_vertices*sizeof(vec2), mesh.texcoord_buffer());//texcoords
   
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);//coords
   glEnableVertexAttribArray(0);
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)(m_num_vertices*sizeof(vec3)));//normales
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)(m_num_vertices*sizeof(vec3)));//couleurs
   glEnableVertexAttribArray(1);
+  glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)(2*m_num_vertices*sizeof(vec3)));//normales
+  glEnableVertexAttribArray(2);
   if (m_usetexture)
   {
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid*)(2*m_num_vertices*sizeof(vec3)));//texcoords
-    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid*)(3*m_num_vertices*sizeof(vec3)));//texcoords
+    glEnableVertexAttribArray(3);
   }
   if (m_useindex)
   {

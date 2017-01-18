@@ -7,7 +7,7 @@
 class EnnemyShip: public Ship
 {
 public:
-  EnnemyShip() : Ship() {}
+  EnnemyShip() : Ship(), m_hullpoints(64) {}
   ~EnnemyShip() {}
 
   virtual void init() {}

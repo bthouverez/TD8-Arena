@@ -1,6 +1,10 @@
 #ifndef SCREENQUAD_HEADER
 #define SCREENQUAD_HEADER
 
+#include "renderable_entity.hpp"
+
+#include <vec.h>
+
 
 class ScreenQuad : public RenderableEntity
 {

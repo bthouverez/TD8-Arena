@@ -7,7 +7,7 @@
 class PlayerShip: public Ship
 {
 public:
-  PlayerShip() : Ship() {}
+  PlayerShip() : Ship(), m_hullpoints(256) {}
   ~PlayerShip() {}
 
   
