@@ -39,6 +39,7 @@ solution "TD8_ARENA"
  -- description des fichiers communs
 gkit_files = { project_dir .. "/src/gkit/*.cpp", project_dir .. "/src/gkit/*.h" }
 td8_arena_files = { project_dir .. "/src/*.cpp", project_dir .. "/src/*.h*" }
+test_files = { project_dir .. "/test/3d/*.cpp" }
 
 project("TD8_ARENA")
 	language "C++"

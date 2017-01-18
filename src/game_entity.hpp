@@ -56,6 +56,7 @@ public:
     if (m_speed < 0.0f) m_speed = 0.0f;
   }
 
+  //! @param changeDirection Si vrai la rotation s'applique aussi à la direction de mouvement courante de l'entité
   void rotate(const Vector & axis, float angle_degree, bool changeDirection = true)
   {
     Transform rot = Rotation(axis, angle_degree);
