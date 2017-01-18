@@ -15,6 +15,12 @@ CameraArena::CameraArena(const float width, const float height, const float rate
 	camera.set(CV_CAP_PROP_FRAME_WIDTH, width);
 	camera.set(CV_CAP_PROP_FRAME_HEIGHT, height);
 	camera.set(CV_CAP_PROP_FPS, rate);
+
+    A = cv::Mat::eye(3, 3, CV_64F); // Intrinsic Params
+    K = cv::Mat::zeros(8, 1, CV_64F); // Extrinsic params
+    R = cv::Mat::eye(3, 3, CV_64F); // Intrinsic Params
+    T = cv::Mat::zeros(3, 1, CV_64F); // Extrinsic params
+
 }
 
 CameraArena::~CameraArena(){}
@@ -44,7 +50,7 @@ bool CameraArena::extrinsics(const int w, const int h, const float s)
     {
         cv::Mat viewGray;
         cv::cvtColor(view, viewGray, cv::COLOR_BGR2GRAY);
-        cv::cornerSubPix( viewGray, pointBuf, cv::Size(5,5), cv::Size(5,5), 
+        cv::cornerSubPix( viewGray, pointBuf, cv::Size(11,11), cv::Size(-1,-1), 
         	cv::TermCriteria( CV_TERMCRIT_EPS+CV_TERMCRIT_ITER, 100, 0.1 ));
         // Draw the corners on the input
         cv::drawChessboardCorners( frame, boardSize, cv::Mat(pointBuf), found);
@@ -65,12 +71,12 @@ bool CameraArena::extrinsics(const int w, const int h, const float s)
     		cv::Rodrigues(rvec,R);
 			/*std::cout << "extrinsics parameters : " << std::endl;
 			std::cout << R << std::endl;
-			std::cout << T << std::endl;*/
+			std::cout << T << std::endl;
         	double x = T.at<double>(0)/10.;
         	double y = T.at<double>(1)/10.;
         	double z = T.at<double>(2)/10.;
         	double dist = sqrt(x*x+y*y+z*z);
-			std::cout << "Distance = " << dist << std::endl;
+			std::cout << "Distance = " << dist << std::endl;*/
 		}
 
 		return ext;
@@ -104,7 +110,7 @@ bool CameraArena::intrinsics(const int w, const int h, const float s, const int 
         {
             cv::Mat viewGray;
             cv::cvtColor(view, viewGray, cv::COLOR_BGR2GRAY);
-            cv::cornerSubPix( viewGray, pointBuf, cv::Size(5,5), cv::Size(5,5), 
+            cv::cornerSubPix( viewGray, pointBuf, cv::Size(11,11), cv::Size(-1,-1), 
             	cv::TermCriteria( CV_TERMCRIT_EPS+CV_TERMCRIT_ITER, 100, 0.1 ));
             // Save the matched points
             imagePoints.push_back(pointBuf);
@@ -174,4 +180,52 @@ bool CameraArena::intrinsics(const int w, const int h, const float s, const int 
     std::cout << "Distorsion Matrix : " << K << std::endl;
 	
     return true;
+}
+
+void CameraArena::read(std::string filename)
+{
+	std::ifstream file( filename.c_str() );
+    if( !file ) 
+    {
+        std::cout << "Can not load parameters file " << std::endl;
+    }
+    else
+    {
+    	// Camera matrix
+        file >> A.at<double>(0,0) >> A.at<double>(0,1) >> A.at<double>(0,2);
+        file >> A.at<double>(1,0) >> A.at<double>(1,1) >> A.at<double>(1,2);
+        file >> A.at<double>(2,0) >> A.at<double>(2,1) >> A.at<double>(2,2);
+    	// Distorsions matrix
+        file >> K.at<double>(0);
+        file >> K.at<double>(1);
+        file >> K.at<double>(2);
+        file >> K.at<double>(3);
+        file >> K.at<double>(4);   
+    	
+    	std::cout << A << std::endl;
+    	std::cout << K << std::endl;
+    }
+
+}    
+
+void CameraArena::write(std::string filename)
+{
+	std::ofstream file( filename.c_str() );
+    if( !file ) 
+    {
+        std::cout << "Can not load parameters file " << std::endl;
+    }
+    else
+    {
+    	// Camera matrix
+        file << A.at<double>(0,0) << " " << A.at<double>(0,1) << " " << A.at<double>(0,2) << std::endl;
+        file << A.at<double>(1,0) << " " << A.at<double>(1,1) << " " << A.at<double>(1,2) << std::endl;
+        file << A.at<double>(2,0) << " " << A.at<double>(2,1) << " " << A.at<double>(2,2) << std::endl;
+    	// Distorsions matrix
+        file << K.at<double>(0) << " ";
+        file << K.at<double>(1) << " ";
+        file << K.at<double>(2) << " ";
+        file << K.at<double>(3) << " ";
+        file << K.at<double>(4) << " " << std::endl;
+    }
 }

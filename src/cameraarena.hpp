@@ -3,6 +3,7 @@
 
 #include "opencv2/opencv.hpp"
 #include <iostream>
+#include <fstream>
 
 class CameraArena{
 public:
@@ -14,6 +15,9 @@ public:
     void get();
     bool intrinsics(const int, const int, const float, const int);
     bool extrinsics(const int, const int, const float);
+
+    void read(std::string filename);
+    void write(std::string filename);
 
     cv::Mat mat(){return frame.clone();}
     cv::Mat amatrix(){return A.clone();}

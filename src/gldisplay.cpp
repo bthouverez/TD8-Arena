@@ -239,13 +239,13 @@ void GLDisplay::loadOff(std::string filename) {
         glm::vec2 cmin = glm::vec2(bounds[0],bounds[1]);
         glm::vec2 cmax = glm::vec2(bounds[3],bounds[4]);
         float d = glm::distance(cmin, cmax);
-        float scale = 10*squareSize/d;
+        float scale = 8.*squareSize/d;
 
         for(unsigned int i = 0; i < points.size() ; i++)
         {
         	// Add transformation to show the model on the chessboard
         	glm::mat4 tr = glm::mat4(1.0);
-        	tr = glm::translate(tr, glm::vec3(3.f*squareSize,1.5f*squareSize,-5.f*squareSize));
+        	tr = glm::translate(tr, glm::vec3(3.f*squareSize,1.5f*squareSize,-1.f*squareSize));
         	tr = glm::rotate(tr, -90.f, glm::vec3(1.f, 0.f, 0.f));
         	// Add scale
         	tr = glm::scale(tr, glm::vec3(scale,scale,scale));
@@ -382,8 +382,8 @@ glm::vec3 GLDisplay::unproject(glm::vec2 point, float sz)
 void GLDisplay::calcFrustum()
 {
     // Camera depth vision
-    near = 20.f; // 2 cm  
-    far = 2000.f; // 2 meters
+    near = 200.f; // 2 cm  
+    far = 4000.f; // 2 meters
     // Frustum faces points
     glm::vec3 mid =   	unproject(glm::vec2(Window_Width/2.f, Window_Height/2.f),near);
     glm::vec3 left =   	unproject(glm::vec2(0.f, Window_Height/2.f),near);

@@ -39,7 +39,7 @@ solution "TD8_ARENA"
  -- description des fichiers communs
 gkit_files = { project_dir .. "/src/gkit/*.cpp", project_dir .. "/src/gkit/*.h" }
 td8_arena_files = { project_dir .. "/src/*.cpp", project_dir .. "/src/*.h*" }
-test_files = { project_dir .. "/test/3d/*.cpp" }
+main_file = { project_dir .. "/stable/main.cpp" }
 
 project("TD8_ARENA")
 	language "C++"
@@ -47,7 +47,23 @@ project("TD8_ARENA")
 	targetdir "bin/"
 	files ( gkit_files )
 	files ( td8_arena_files )
+	files ( main_file )
 
+ -- description des tests		 
+tests = {
+	"test_3d",
+	"test_calib",
+	"test_controller"
+}
 
+for i, name in ipairs(tests) do
+	project(name)
+		language "C++"
+		kind "ConsoleApp"
+		targetdir "bin"
+		files ( gkit_files )
+		files ( td8_arena_files )
+		files { project_dir .. "/test/".. name ..".cpp" }
+end
 
 
