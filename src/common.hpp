@@ -4,10 +4,10 @@
 // --- GL INCLUDES ---
 // include from OpenGL, glm, glfw
 #define GLFW_INCLUDE_NONE
-#include <GL/glew.h>
+#include <GL/glew.h>    
 #include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
+//#include <glm/glm.hpp>
+//#include <glm/gtc/matrix_transform.hpp>
 
 
 typedef unsigned long long uint64;

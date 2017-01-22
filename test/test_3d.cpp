@@ -1,5 +1,5 @@
-#include "window.hpp"
 #include "common.hpp"
+#include "window.hpp"
 #include "shader.hpp"
 #include "screenquad.hpp"
 
@@ -7,7 +7,7 @@
 
 int main(void)
 {
-  Window::init(1366, 800);
+  Window * win = Window::init(1366, 800);
 
   glEnable(GL_DEPTH_TEST);
   glClearDepth(1.0f);
@@ -21,19 +21,19 @@ int main(void)
   if (!program.init())
     return -1;
   GLuint prog = program.getProgramID();
+  glUseProgram(prog);
 
-  while(Window::isActive())
+  while(win->isActive())
   {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glUseProgram(prog);
     glActiveTexture(GL_TEXTURE0 + 0);
     glBindTexture(GL_TEXTURE_2D, quad.getTexture());
     glUniform1i(glGetUniformLocation(prog, "image"), 0);
 
     quad.draw();
 
-    Window::refresh();
+    win->refresh();
   }
 
   program.destroy();
