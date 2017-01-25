@@ -53,7 +53,8 @@ project("TD8_ARENA")
 tests = {
 	"test_3d",
 	"test_calib",
-	"test_controller"
+	"test_controller",
+	"test_3d_controller"
 }
 
 for i, name in ipairs(tests) do

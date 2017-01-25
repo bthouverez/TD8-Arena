@@ -28,6 +28,10 @@ public:
     virtual void onServiceDisconnect(const Leap::Controller&);
 };
 
+
+/** TODO
+   - gestion hauteur : directe ou par accélération ? directe pour l'instant
+**/
 class LeapInputReader
 {
 public:
@@ -35,36 +39,22 @@ public:
     LeapInputReader();
 	~LeapInputReader();
 
-    void UpdateHandLocations();
+    void Update();
     
-    Leap::Vector GetLeftPalmLocation();
-    Leap::Vector GetLeftFingerLocation();
-    Leap::Vector GetRightPalmLocation();
-    Leap::Vector GetRightFingerLocation();
-    bool IsValidInputLastFrame();
-    /*
-     Offset to account for position of Leap mount on Oculus headset
-     NOTE: for simplicity this is still in Leap coordinates!  This is intended to first correct the Leap coordinates for the fact that the mount positions the Leap a few inches in front of the eyes.  
-     */
-    Leap::Vector LeapMountOffset;
+    inline float GetHeight()    { return m_height; }
+    inline float GetSpeed()     { return m_speed; }
+    inline float GetDirection() { return m_direction; }
+    inline bool  GetShoot()     { return m_shoot; }
 
-    /*
-     Offset to account for the fact the Leap is head mounted so the proper location to draw the hand to look natural will require some trial and error.
-     */
-    Leap::Vector LeapHandOffset;
-
-    bool LeapDrawSimpleHands;
-    
 protected:
 
     SampleListener listener;
     Leap::Controller controller;
 
-    bool ValidInputLastFrame;
-    Leap::Vector LeftPalmLocation;
-    Leap::Vector LeftFingerLocation;
-    Leap::Vector RightPalmLocation;
-    Leap::Vector RightFingerLocation;
+    float m_height = 0.f;
+    float m_speed = 0.f;
+    float m_direction = 0.f;
+    bool  m_shoot = false;
 };
 
 #endif
