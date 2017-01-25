@@ -7,8 +7,6 @@
 
 typedef GLFWwindow NATIVEWINDOW;
 
-
-
 static void glfw_error_callback(int err, const char * description)
 {
   fprintf(stderr, "GLFW error %d = %s\n", err, description);
@@ -80,7 +78,7 @@ private:
     init_internal();
   }
 
-  Window(int width, int height) : m_width(width), m_height(height) 
+  Window(int width, int height) : m_width(width), m_height(height), m_fullscreen(false)
   {
     init_internal();
   }
@@ -158,7 +156,7 @@ static void glfw_key_callback(GLFWwindow *window, int key, int scancode, int act
 {
     (void) scancode;
     (void) mods;
-    if (key == GLFW_KEY_Q && action == GLFW_PRESS)
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(Window::getInstance()->getNativeWindow(), GL_TRUE);
 }
 

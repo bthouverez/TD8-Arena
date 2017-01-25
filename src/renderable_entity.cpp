@@ -13,7 +13,7 @@ void RenderableEntity::draw()
   if (m_useindex)
     glDrawElements(GL_TRIANGLES, m_num_indices, GL_UNSIGNED_INT, 0/* element array buffer offset*/);
   else 
-    glDrawArrays(GL_TRIANGLES, m_num_vertices, 0);
+    glDrawArrays(GL_TRIANGLES, 0, m_num_vertices);
 }
 
 void RenderableEntity::release()

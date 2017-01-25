@@ -7,9 +7,11 @@
 
 int main(void)
 {
-  Window * win = Window::init(1366, 800);
+  //Window * win = Window::init(1024, 800);
+  Window * win = Window::init_fullscreen();
 
-  glEnable(GL_DEPTH_TEST);
+  //glEnable(GL_DEPTH_TEST);
+  glDisable(GL_DEPTH_TEST);
   glClearDepth(1.0f);
   glClearColor(0, 0, 0, 1);
 
@@ -29,13 +31,14 @@ int main(void)
 
     glActiveTexture(GL_TEXTURE0 + 0);
     glBindTexture(GL_TEXTURE_2D, quad.getTexture());
-    glUniform1i(glGetUniformLocation(prog, "image"), 0);
+    glUniform1i(glGetUniformLocation(prog, "image"), 0);  
 
     quad.draw();
-
     win->refresh();
   }
 
   program.destroy();
   quad.release();
+
+  return 0;
 }
