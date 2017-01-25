@@ -88,18 +88,27 @@ bool RenderableEntity::loadOBJ(const std::string & filename)
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_num_indices * sizeof(unsigned int), mesh.index_buffer(), GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
   }
-
+  
   glGenVertexArrays(1, &m_vao);
   glBindVertexArray(m_vao);
 
   glGenBuffers(1, &m_vbo);
   glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
   if (m_usetexture)
-       glBufferData(GL_ARRAY_BUFFER, 3*m_num_vertices * sizeof(vec3) + m_num_vertices *sizeof(vec2), 0, GL_STATIC_DRAW);
-  else glBufferData(GL_ARRAY_BUFFER, 3*m_num_vertices * sizeof(vec3), 0, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 3*m_num_vertices * sizeof(vec3) + m_num_vertices * sizeof(vec2), 0, GL_STATIC_DRAW);
+  else 
+    glBufferData(GL_ARRAY_BUFFER, 3*m_num_vertices * sizeof(vec3), 0, GL_STATIC_DRAW);
+
+  std::cout << "vertex : " <<  mesh.vertex_buffer_size() << std::endl;
+  std::cout << "normals : " <<  mesh.normal_buffer_size() << std::endl;
+  std::cout << "colors : " <<  mesh.color_buffer_size() << std::endl;
+
   glBufferSubData(GL_ARRAY_BUFFER, 0, m_num_vertices * sizeof(vec3), mesh.vertex_buffer());//coords
-  glBufferSubData(GL_ARRAY_BUFFER, m_num_vertices* sizeof(vec3), m_num_vertices * sizeof(vec3), mesh.color_buffer());//couleurs
-  glBufferSubData(GL_ARRAY_BUFFER, 2*m_num_vertices* sizeof(vec3), m_num_vertices*sizeof(vec3), mesh.normal_buffer());//normales
+  glBufferSubData(GL_ARRAY_BUFFER, 2 * m_num_vertices * sizeof(vec3), m_num_vertices * sizeof(vec3), mesh.normal_buffer());//normales
+  
+  if(mesh.color_buffer_size() > 0)
+      glBufferSubData(GL_ARRAY_BUFFER, m_num_vertices * sizeof(vec3), m_num_vertices * sizeof(vec3), mesh.color_buffer());//couleurs
+  
   if (m_usetexture)
       glBufferSubData(GL_ARRAY_BUFFER, 3*m_num_vertices *sizeof(vec3), m_num_vertices*sizeof(vec2), mesh.texcoord_buffer());//texcoords
   

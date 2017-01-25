@@ -86,7 +86,6 @@ public:
       m_direction = rot(m_direction);
   }
 
-
   Transform getModelMatrix() const { return Translation(Vector(m_position)) * m_orientation * Scale(m_scale, m_scale, m_scale); }
 
   void setScale(float s) { m_scale = s; }

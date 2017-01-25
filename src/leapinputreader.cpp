@@ -70,9 +70,7 @@ void LeapInputReader::Update()
 
         Leap::Vector transv_begin = ring_begin_pos - index_begin_pos;
         Leap::Vector transv_end = ring_end_pos - index_end_pos;
-        Leap::Vector transversal = (transv_begin + transv_end).normalized();
-
-       
+        Leap::Vector transversal = (transv_begin + transv_end).normalized();   
 
         /** Compute control values **/
 
@@ -81,7 +79,7 @@ void LeapInputReader::Update()
         m_height = (palm_pos.y - 50) / 300;
         m_height = m_height > 1.0000001 ? 1.0 : m_height;
         m_height = m_height < -0.0000001 ? 0.0 : m_height;
-        
+
         // TIR
         if(cos_thumb < 0.8) {
           //std::cout << "SHOOT " << std::endl;

@@ -54,7 +54,8 @@ tests = {
 	"test_3d",
 	"test_calib",
 	"test_controller",
-	"test_3d_controller"
+	"test_3d_controller",
+	"test_ship_control_3d"
 }
 
 for i, name in ipairs(tests) do

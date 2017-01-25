@@ -51,7 +51,7 @@ bool CameraArena::extrinsics(const int w, const int h, const float s)
         cv::Mat viewGray;
         cv::cvtColor(view, viewGray, cv::COLOR_BGR2GRAY);
         cv::cornerSubPix( viewGray, pointBuf, cv::Size(11,11), cv::Size(-1,-1), 
-        	cv::TermCriteria( CV_TERMCRIT_EPS+CV_TERMCRIT_ITER, 100, 0.1 ));
+    	cv::TermCriteria( CV_TERMCRIT_EPS+CV_TERMCRIT_ITER, 100, 0.1 ));
         // Draw the corners on the input
         cv::drawChessboardCorners( frame, boardSize, cv::Mat(pointBuf), found);
 
