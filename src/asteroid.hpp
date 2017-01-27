@@ -17,16 +17,13 @@ public:
   virtual void init() 
   {
     m_rotation_axis = normalize(Vector(getRandomFloat(-1,1), getRandomFloat(-1,1), getRandomFloat(-1,1)));
-    m_rotation_speed = getRandomFloat(0, 3);
-    m_radius = getRandomFloat(0.5, 3.0);
+    m_rotation_speed = getRandomFloat(0, 0.2);
+    m_radius = getRandomFloat(0.5, 3.0);    
   }
 
   virtual void update(float dt)
   {
-    m_rotation_axis = normalize( m_rotation_axis + 0.5f * Vector(getRandomFloat(-1,1), getRandomFloat(-1,1), getRandomFloat(-1,1)) );
-
-    //todo: 
-    //m_l2w = Translation(m_speed * orientation) * m_l2w * Rotation(axis, speed);
+    m_rotation_axis = normalize( m_rotation_axis + 0.01f * Vector(getRandomFloat(-1,1), getRandomFloat(-1,1), getRandomFloat(-1,1)) );    
   }
 
   virtual void release() {}

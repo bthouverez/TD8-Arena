@@ -16,7 +16,7 @@ solution "TD8_ARENA"
 	configuration "linux"
 		buildoptions { "-mtune=native -march=native" }
 		buildoptions { "-std=c++11" }
-		buildoptions { "-W -Wall -Wextra -Wsign-compare -Wno-unused-parameter -Wno-unused-function -Wno-unused-variable", "-pipe" }
+		buildoptions { "-W -Wall -Wextra -Wsign-compare -Wno-unused-parameter -Wno-unused-function -Wno-unused-variable -Wno-int-to-pointer-cast", "-pipe" }
 		buildoptions { "-flto"}
 		linkoptions  { "lib/x64/libLeap.so -Wl,-rpath=lib/x64"}
 		linkoptions  { "-flto"}
