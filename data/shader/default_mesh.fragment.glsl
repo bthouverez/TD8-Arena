@@ -31,5 +31,13 @@ void main()
 	float cosTheta = max(0.0, dot(N, L));
 	vec3 H = normalize(L + V);
 	float cosSpec = max(0.0, dot(N, H));
-	finalColor = (0.68 * color + 0.32 * pow(cosSpec, m_spec) ) * lightColor * cosTheta ;
+	finalColor = (0.88 * color + 0.22 * pow(cosSpec, m_spec) ) * lightColor * cosTheta ;
+
+	finalColor = clamp(finalColor, 0.0, 1.0);
+
+	// gamma corr:
+	const float g = 1.0/2.2;
+	finalColor.r = pow(finalColor.r, g);
+	finalColor.g = pow(finalColor.g, g);
+	finalColor.b = pow(finalColor.b, g);
 }

@@ -13,20 +13,14 @@
 
 int main(void)
 {
-  //Window * win = Window::init(1024, 800);
   Window * win = Window::init_fullscreen();
   int winwidth, winheight;
   win->getSize(winwidth, winheight);
 
   glEnable(GL_DEPTH_TEST);
-  //glDisable(GL_DEPTH_TEST);
   glClearDepth(1.0f);
   glClearColor(0, 0, 0, 1);
 
-  //ScreenQuad quad;
-  //quad.init();
-  //quad.loadTexture(std::string("data/texture/test.jpg"), GL_RGB8);
-  //Shader program("data/shader/screenquad.vertex.glsl", "data/shader/screenquad.fragment.glsl");
   Shader program("data/shader/default_mesh.vertex.glsl", "data/shader/default_mesh.fragment.glsl");
   if (!program.init())
     return -1;
@@ -54,11 +48,6 @@ int main(void)
   {
     framecount += 1.0f;
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    /*glActiveTexture(GL_TEXTURE0 + 0);
-    glBindTexture(GL_TEXTURE_2D, quad.getTexture());
-    glUniform1i(glGetUniformLocation(prog, "image"), 0);  
-    quad.draw();*/
 
     float phi = 180.0f * std::sin(0.2f*framecount/60.0f);
     float theta = 180.0f * std::sin(framecount/60.0f*0.16f);
