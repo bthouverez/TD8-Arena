@@ -6,13 +6,9 @@
 #define GLFW_INCLUDE_NONE
 #include <GL/glew.h>    
 #include <GLFW/glfw3.h>
+#include "opencv2/opencv.hpp"
 //#include <glm/glm.hpp>
 //#include <glm/gtc/matrix_transform.hpp>
-
-
-typedef unsigned long long uint64;
-
-
 
 //! Base Class (uuid)
 class Common

@@ -24,10 +24,7 @@ int main(int argc, char** argv) {
   cam.intrinsics(chess_width, chess_height, chess_size, nb);
   cam.write(argv[8]);
 
-  while(true)
-  {
-      if(cv::waitKey(1) == 'q') break;
-  }
+  while(cv::waitKey(20) != 'q'){}
 
   return 0;
 }

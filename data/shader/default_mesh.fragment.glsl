@@ -20,7 +20,7 @@ const float m_spec = 16.0;// exposant spéculaire (par défaut)
 void main()
 {	
 	vec3 color = frag_color;
-	if (use_texture)
+	if (use_texture != 0)
 	{
 		color = texture(tex, frag_texcoords).rgb;
 	}

@@ -86,6 +86,27 @@ bool CameraArena::extrinsics(const int w, const int h, const float s)
     	std::cerr <<"No corners found" << std::endl;
     }
 
+    // GTOC Matrix
+    globaltocamera.m[0][0] = R.at<double>(0,0);
+    globaltocamera.m[0][1] = R.at<double>(1,0);
+    globaltocamera.m[0][2] = R.at<double>(2,0);
+    globaltocamera.m[0][3] = 0.0f;
+
+    globaltocamera.m[1][0] = R.at<double>(0,1);
+    globaltocamera.m[1][1] = R.at<double>(1,1);
+    globaltocamera.m[1][2] = R.at<double>(2,1);
+    globaltocamera.m[1][3] = 0.0f;
+
+    globaltocamera.m[2][0] = R.at<double>(0,2);
+    globaltocamera.m[2][1] = R.at<double>(1,2);
+    globaltocamera.m[2][2] = R.at<double>(2,2);
+    globaltocamera.m[2][3] = 0.0f;
+
+    globaltocamera.m[3][0] = T.at<double>(0);
+    globaltocamera.m[3][1] = T.at<double>(1);
+    globaltocamera.m[3][2] = T.at<double>(2);
+    globaltocamera.m[3][3] = 1.0f;
+
     return found;
 }
 
@@ -179,6 +200,11 @@ bool CameraArena::intrinsics(const int w, const int h, const float s, const int 
     std::cout << "Camera Matrix : " << A << std::endl;
     std::cout << "Distorsion Matrix : " << K << std::endl;
 	
+    cmatrix =    Transform( A.at<double>(0,0), A.at<double>(1,0), A.at<double>(2,0), 0.f,
+                            A.at<double>(0,1), A.at<double>(1,1), A.at<double>(2,1), 0.f,
+                            A.at<double>(0,2), A.at<double>(1,2), A.at<double>(2,2), 0.f,
+                            0.f, 0.f, 0.f, 1.f);
+    
     return true;
 }
 
@@ -228,4 +254,106 @@ void CameraArena::write(std::string filename)
         file << K.at<double>(3) << " ";
         file << K.at<double>(4) << " " << std::endl;
     }
+}
+
+
+GLuint CameraArena::background()
+{
+    // Credits 
+    // Function from R3dux 
+    // http://r3dux.org/2012/01/how-to-convert-an-opencv-cvmat-to-an-opengl-texture/
+    cv::Mat tmp;
+    cv::flip(frame, tmp, 0);
+    GLenum minFilter = GL_NEAREST;
+    GLenum magFilter = GL_NEAREST;
+    GLenum wrapFilter = GL_CLAMP;
+    // Generate a number for our texture's unique handle
+    glGenTextures(1, &texture);
+    // Bind to our texture handle
+    glBindTexture(GL_TEXTURE_2D, texture);
+    // Catch silly-mistake texture interpolation method for magnification
+    if (magFilter == GL_LINEAR_MIPMAP_LINEAR  ||
+        magFilter == GL_LINEAR_MIPMAP_NEAREST ||
+        magFilter == GL_NEAREST_MIPMAP_LINEAR ||
+        magFilter == GL_NEAREST_MIPMAP_NEAREST)
+    {
+        magFilter = GL_LINEAR;
+    }
+    // Set texture interpolation methods for minification and magnification
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
+    // Set texture clamping method
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapFilter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapFilter);
+    // Set incoming texture format to:
+    // GL_BGR       for CV_CAP_OPENNI_BGR_IMAGE,
+    // GL_LUMINANCE for CV_CAP_OPENNI_DISPARITY_MAP,
+    // Work out other mappings as required ( there's a list in comments in main() )
+    GLenum inputColourFormat = GL_BGR;
+    if (tmp.channels() == 1)
+    {
+        inputColourFormat = GL_LUMINANCE;
+    }
+    // Create the texture
+    glTexImage2D(GL_TEXTURE_2D,     // Type of texture
+                 0,                 // Pyramid level (for mip-mapping) - 0 is the top level
+                 GL_RGB,            // Internal colour format to convert to
+                 tmp.cols,          // Image width  i.e. 640 for Kinect in standard mode
+                 tmp.rows,          // Image height i.e. 480 for Kinect in standard mode
+                 0,                 // Border width in pixels (can either be 1 or 0)
+                 inputColourFormat, // Input image format (i.e. GL_RGB, GL_RGBA, GL_BGR etc.)
+                 GL_UNSIGNED_BYTE,  // Image data type
+                 tmp.ptr());        // The actual image data itself
+    // If we're using mipmaps then generate them. Note: This requires OpenGL 3.0 or higher
+    if (minFilter == GL_LINEAR_MIPMAP_LINEAR  ||
+        minFilter == GL_LINEAR_MIPMAP_NEAREST ||
+        minFilter == GL_NEAREST_MIPMAP_LINEAR ||
+        minFilter == GL_NEAREST_MIPMAP_NEAREST)
+    {
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    // Keep GL index of texture
+    return texture;
+}
+
+void CameraArena::release()
+{
+    glDeleteTextures(1, &texture);
+}
+
+Point CameraArena::unproject(Point point, float sz)
+{
+    Point p = cmatrix.inverse()(point);
+    return Point(sz * p.x, sz * p.y, sz* p.z);
+}
+
+void CameraArena::frustum(int w, int h, float near, float far)
+{
+    // Camera depth vision
+    near = 200.f; // 2 cm  
+    far = 4000.f; // 2 meters
+    // Frustum faces points
+    Point mid =     unproject(Point((float)w/2.f, (float)h/2.f,1.f),near);
+    Point left =    unproject(Point(0.f, (float)h/2.f,1.f),near);
+    Point right =   unproject(Point((float)w, (float)h/2.f,1.f),near);
+    Point bottom =  unproject(Point((float)w/2.f, 0.f,1.f),near);
+    Point top =     unproject(Point((float)w/2.f, (float)h,1.f),near);
+    // Frustum
+    float frustum[4];
+    frustum[0] = -1.0f * distance(mid, left);
+    frustum[1] = 1.0 * distance(mid, right);
+    frustum[2] = -1.0f * distance(mid, bottom);
+    frustum[3] = 1.0 * distance(mid, top);
+
+    float a = (frustum[1] + frustum[0]) / (frustum[1] - frustum[0]);
+    float b = (frustum[3] + frustum[2]) / (frustum[3] - frustum[2]);
+    float c = -(far + near) / (far - near);
+    float d = -(2 * far * near) / (far - near);
+    float e = (2 * near) / (frustum[1] - frustum[0]);
+    float f = (2 * near) / (frustum[3] - frustum[2]);
+
+    proj = Transform(   e, 0.f, a, 0.f,
+                        0.f, f, b, 0.f,
+                        0.f, 0.f, c, d,
+                        0.f, 0.f, -1.f, 0.f);
 }
