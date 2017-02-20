@@ -79,6 +79,14 @@ bool RenderableEntity::loadOBJ(const std::string & filename)
 
   m_num_vertices = mesh.vertex_count();
 
+  // Colors (vec3 instead of vec4)
+  std::vector<vec3> colors;
+  for(auto color : mesh.colors())
+  {
+    vec3 c = vec3(color.x,color.y,color.z);
+    colors.push_back(c);
+  }
+
   // GL:
   if (m_useindex)
   {
@@ -94,25 +102,33 @@ bool RenderableEntity::loadOBJ(const std::string & filename)
 
   glGenBuffers(1, &m_vbo);
   glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-  if (m_usetexture)
-    glBufferData(GL_ARRAY_BUFFER, 3*m_num_vertices * sizeof(vec3) + m_num_vertices * sizeof(vec2), 0, GL_STATIC_DRAW);
-  else 
-    glBufferData(GL_ARRAY_BUFFER, 3*m_num_vertices * sizeof(vec3), 0, GL_STATIC_DRAW);
 
-  std::cout << "vertex : " <<  mesh.vertex_buffer_size() << std::endl;
-  std::cout << "normals : " <<  mesh.normal_buffer_size() << std::endl;
-  std::cout << "colors : " <<  mesh.color_buffer_size() << std::endl;
+  if (m_usetexture)
+    glBufferData(   GL_ARRAY_BUFFER, 
+                    3 * m_num_vertices * sizeof(vec3) +     // Position + Normal + Color
+                    m_num_vertices * sizeof(vec2),          // Texcoord
+                    0, GL_STATIC_DRAW);
+  else 
+    glBufferData(   GL_ARRAY_BUFFER, 
+                    3 * m_num_vertices * sizeof(vec3),       // Position + Normal + Color
+                    0, GL_STATIC_DRAW);
+
+  std::cout << "vertex : " <<  mesh.vertex_count() << std::endl;
+  std::cout << "normals : " <<  mesh.normals().size() << std::endl;
+  std::cout << "colors : " <<  colors.size() << std::endl;
+  std::cout << "faces : " <<  mesh.triangle_count() << std::endl;
 
   glBufferSubData(GL_ARRAY_BUFFER, 0, m_num_vertices * sizeof(vec3), mesh.vertex_buffer());//coords
-  glBufferSubData(GL_ARRAY_BUFFER, 2 * m_num_vertices * sizeof(vec3), m_num_vertices * sizeof(vec3), mesh.normal_buffer());//normales
-  
+
   if(mesh.color_buffer_size() > 0)
-      glBufferSubData(GL_ARRAY_BUFFER, m_num_vertices * sizeof(vec3), m_num_vertices * sizeof(vec3), mesh.color_buffer());//couleurs
-  
+      glBufferSubData(GL_ARRAY_BUFFER, m_num_vertices * sizeof(vec3), m_num_vertices * sizeof(vec3), &colors.front().x);//couleurs
+
+  glBufferSubData(GL_ARRAY_BUFFER, 2 * m_num_vertices * sizeof(vec3), m_num_vertices * sizeof(vec3), mesh.normal_buffer());//normales
+
   if (m_usetexture)
       glBufferSubData(GL_ARRAY_BUFFER, 3*m_num_vertices *sizeof(vec3), m_num_vertices*sizeof(vec2), mesh.texcoord_buffer());//texcoords
   
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);//coords
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0); //coords
   glEnableVertexAttribArray(0);
   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)(m_num_vertices*sizeof(vec3)));//couleurs
   glEnableVertexAttribArray(1);

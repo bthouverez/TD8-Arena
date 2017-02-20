@@ -7,8 +7,8 @@
 #include <GL/glew.h>    
 #include <GLFW/glfw3.h>
 #include "opencv2/opencv.hpp"
-//#include <glm/glm.hpp>
-//#include <glm/gtc/matrix_transform.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 //! Base Class (uuid)
 class Common

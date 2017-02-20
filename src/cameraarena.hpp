@@ -32,21 +32,21 @@ public:
     void release();
 
     void frustum(int w, int h, float near = 200.f, float far = 10000.f);
-    Point unproject(Point point, float sz);
+    glm::vec3 unproject(glm::vec2 point, float sz);
 
     
-    Transform projection(){return proj;}
-    Transform view(){return Lookat(Point(0.f,0.f,0.f),Point(0.f,0.f,1.f),Vector(0.f,-1.f,0.f));}
-    Transform gtoc(){return globaltocamera;}
+    glm::mat4 projection(){return projection_matrix;}
+    glm::mat4 view(){return view_matrix;}
+    glm::mat4 gtoc(){return gtoc_matrix;}
     Point position(){return Point(T.at<double>(0),T.at<double>(1),T.at<double>(2));}
 
 private:
     cv::VideoCapture camera;
     cv::Mat frame, A , K ,  R , T;
     GLuint texture;
-    Transform cmatrix, proj, globaltocamera;
-    //int nb;
-    //float w, h, s;
+
+    glm::mat3 intrinsic_matrix;
+    glm::mat4 projection_matrix, gtoc_matrix, view_matrix;
 };
 
 #endif

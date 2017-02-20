@@ -55,6 +55,8 @@ Mesh read_mesh( const char *filename )
     std::vector<vec3> normals;
     std::vector<unsigned int> material_indices;
     MaterialLib materials;
+
+    Material current;
     
     std::vector<int> idp;
     std::vector<int> idt;
@@ -143,6 +145,7 @@ Mesh read_mesh( const char *filename )
                     if(n >= 0) data.normal(normals[n]);
                     
                     if(p < 0) break; // error
+                    data.color(current.diffuse);
                     data.vertex(positions[p]);
                 }
             }
@@ -152,7 +155,7 @@ Mesh read_mesh( const char *filename )
         {
            if(sscanf(line, "mtllib %[^\r\n]", tmp) == 1)
            {
-               materials= read_materials( std::string(pathname(filename) + tmp).c_str() );
+               materials = read_materials( std::string(pathname(filename) + tmp).c_str() );
                // enregistre les matieres dans le mesh
                data.mesh_materials(materials.data);
            }
@@ -164,8 +167,11 @@ Mesh read_mesh( const char *filename )
            {
                for(size_t i= 0; i < materials.names.size(); i++)
                 if(materials.names[i] == tmp)
+                {
                     // selectionne une matiere pour le prochain triangle
                     data.material(i);
+                    current = data.mesh_material(i);
+                }
            }
         }
     }

@@ -87,25 +87,27 @@ bool CameraArena::extrinsics(const int w, const int h, const float s)
     }
 
     // GTOC Matrix
-    globaltocamera.m[0][0] = R.at<double>(0,0);
-    globaltocamera.m[0][1] = R.at<double>(1,0);
-    globaltocamera.m[0][2] = R.at<double>(2,0);
-    globaltocamera.m[0][3] = 0.0f;
+    gtoc_matrix[0][0] = R.at<double>(0,0);
+    gtoc_matrix[1][0] = R.at<double>(1,0);
+    gtoc_matrix[2][0] = R.at<double>(2,0);
+    gtoc_matrix[3][0] = 0.0f;
 
-    globaltocamera.m[1][0] = R.at<double>(0,1);
-    globaltocamera.m[1][1] = R.at<double>(1,1);
-    globaltocamera.m[1][2] = R.at<double>(2,1);
-    globaltocamera.m[1][3] = 0.0f;
+    gtoc_matrix[0][1] = R.at<double>(0,1);
+    gtoc_matrix[1][1] = R.at<double>(1,1);
+    gtoc_matrix[2][1] = R.at<double>(2,1);
+    gtoc_matrix[3][1] = 0.0f;
 
-    globaltocamera.m[2][0] = R.at<double>(0,2);
-    globaltocamera.m[2][1] = R.at<double>(1,2);
-    globaltocamera.m[2][2] = R.at<double>(2,2);
-    globaltocamera.m[2][3] = 0.0f;
+    gtoc_matrix[0][2] = R.at<double>(0,2);
+    gtoc_matrix[1][2] = R.at<double>(1,2);
+    gtoc_matrix[2][2] = R.at<double>(2,2);
+    gtoc_matrix[3][2] = 0.0f;
 
-    globaltocamera.m[3][0] = T.at<double>(0);
-    globaltocamera.m[3][1] = T.at<double>(1);
-    globaltocamera.m[3][2] = T.at<double>(2);
-    globaltocamera.m[3][3] = 1.0f;
+    gtoc_matrix[0][3] = T.at<double>(0);
+    gtoc_matrix[1][3] = T.at<double>(1);
+    gtoc_matrix[2][3] = T.at<double>(2);
+    gtoc_matrix[3][3] = 1.0f;
+
+    gtoc_matrix = glm::transpose(gtoc_matrix);
 
     return found;
 }
@@ -198,12 +200,11 @@ bool CameraArena::intrinsics(const int w, const int h, const float s, const int 
                             imageSize, CV_16SC2, map1, map2);
 
     std::cout << "Camera Matrix : " << A << std::endl;
-    std::cout << "Distorsion Matrix : " << K << std::endl;
+    // std::cout << "Distorsion Matrix : " << K << std::endl;
 	
-    cmatrix =    Transform( A.at<double>(0,0), A.at<double>(1,0), A.at<double>(2,0), 0.f,
-                            A.at<double>(0,1), A.at<double>(1,1), A.at<double>(2,1), 0.f,
-                            A.at<double>(0,2), A.at<double>(1,2), A.at<double>(2,2), 0.f,
-                            0.f, 0.f, 0.f, 1.f);
+    intrinsic_matrix = glm::mat3(   A.at<double>(0,0), A.at<double>(1,0), A.at<double>(2,0),
+                                    A.at<double>(0,1), A.at<double>(1,1), A.at<double>(2,1),
+                                    A.at<double>(0,2), A.at<double>(1,2), A.at<double>(2,2));
     
     return true;
 }
@@ -229,7 +230,11 @@ void CameraArena::read(std::string filename)
         file >> K.at<double>(4);   
     	
     	std::cout << A << std::endl;
-    	std::cout << K << std::endl;
+    	// std::cout << K << std::endl;
+
+        intrinsic_matrix = glm::mat3(   A.at<double>(0,0), A.at<double>(1,0), A.at<double>(2,0),
+                                        A.at<double>(0,1), A.at<double>(1,1), A.at<double>(2,1),
+                                        A.at<double>(0,2), A.at<double>(1,2), A.at<double>(2,2));
     }
 
 }    
@@ -321,23 +326,19 @@ void CameraArena::release()
     glDeleteTextures(1, &texture);
 }
 
-Point CameraArena::unproject(Point point, float sz)
+glm::vec3 CameraArena::unproject(glm::vec2 point, float sz)
 {
-    Point p = cmatrix.inverse()(point);
-    return Point(sz * p.x, sz * p.y, sz* p.z);
+    return glm::vec3(glm::inverse(intrinsic_matrix) * glm::vec3(point,1)) * sz;
 }
 
 void CameraArena::frustum(int w, int h, float near, float far)
 {
-    // Camera depth vision
-    near = 200.f; // 2 cm  
-    far = 4000.f; // 2 meters
     // Frustum faces points
-    Point mid =     unproject(Point((float)w/2.f, (float)h/2.f,1.f),near);
-    Point left =    unproject(Point(0.f, (float)h/2.f,1.f),near);
-    Point right =   unproject(Point((float)w, (float)h/2.f,1.f),near);
-    Point bottom =  unproject(Point((float)w/2.f, 0.f,1.f),near);
-    Point top =     unproject(Point((float)w/2.f, (float)h,1.f),near);
+    glm::vec3 mid =     unproject(glm::vec2(w/2.f, h/2.f),near);
+    glm::vec3 left =    unproject(glm::vec2(0.f, h/2.f),near);
+    glm::vec3 right =   unproject(glm::vec2(w, h/2.f),near);
+    glm::vec3 bottom =  unproject(glm::vec2(w/2.f, 0.f),near);
+    glm::vec3 top =     unproject(glm::vec2(w/2.f, h),near);
     // Frustum
     float frustum[4];
     frustum[0] = -1.0f * distance(mid, left);
@@ -345,15 +346,13 @@ void CameraArena::frustum(int w, int h, float near, float far)
     frustum[2] = -1.0f * distance(mid, bottom);
     frustum[3] = 1.0 * distance(mid, top);
 
-    float a = (frustum[1] + frustum[0]) / (frustum[1] - frustum[0]);
-    float b = (frustum[3] + frustum[2]) / (frustum[3] - frustum[2]);
-    float c = -(far + near) / (far - near);
-    float d = -(2 * far * near) / (far - near);
-    float e = (2 * near) / (frustum[1] - frustum[0]);
-    float f = (2 * near) / (frustum[3] - frustum[2]);
+    // float a = (frustum[1] + frustum[0]) / (frustum[1] - frustum[0]);
+    // float b = (frustum[3] + frustum[2]) / (frustum[3] - frustum[2]);
+    // float c = -(far + near) / (far - near);
+    // float d = -(2 * far * near) / (far - near);
+    // float e = (2 * near) / (frustum[1] - frustum[0]);
+    // float f = (2 * near) / (frustum[3] - frustum[2]);
 
-    proj = Transform(   e, 0.f, a, 0.f,
-                        0.f, f, b, 0.f,
-                        0.f, 0.f, c, d,
-                        0.f, 0.f, -1.f, 0.f);
+    projection_matrix = glm::frustum(frustum[0], frustum[1], frustum[2], frustum[3], near, far);
+    view_matrix = glm::lookAt(glm::vec3(0.f,0.f,0.f),glm::vec3(0.f,0.f,1.f),glm::vec3(0.f,-1.f,0.f));
 }

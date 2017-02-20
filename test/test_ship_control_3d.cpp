@@ -42,12 +42,12 @@ int main(int argc, char** argv)
   // Load intrinsics parameters
   cam.read(argv[7]);
   // Calc extrinsics parameters
-  cam.get();
-  while(!cam.extrinsics(chess_width, chess_height, chess_size))
+  do
   {
     std::cout << "Camera calibration ..." << std::endl;
     cam.get();
   }
+  while(!cam.extrinsics(chess_width, chess_height, chess_size));
   cam.frustum( width, height );
 
   ////////// Ship //////////
@@ -106,10 +106,6 @@ int main(int argc, char** argv)
     GLuint background = cam.background();
     quad.setTexture(background);
 
-    ////////// Calc transformation matrix //////////
-
-
-
     ////////// Clear Window //////////
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -126,17 +122,10 @@ int main(int argc, char** argv)
 
     ////////// Renderable draw //////////
 
-
-    float scale = 8.*chess_size;
-
-    Transform tr =  Translation(3.f*chess_size,1.5f*chess_size,-1.f*chess_size) * 
-                    Rotation(Vector(1.f, 0.f, 0.f), -90.f) * 
-                    Scale(scale,scale,scale);
-
     prog = renderable_program.getProgramID();
     glUseProgram(prog);
-    glUniformMatrix4fv(glGetUniformLocation(prog,"PV"), 1, GL_TRUE, (cam.projection() * cam.view()).buffer());
-    glUniformMatrix4fv(glGetUniformLocation(prog,"Model"), 1, GL_TRUE, (cam.gtoc() * tr).buffer());
+    glUniformMatrix4fv(glGetUniformLocation(prog,"PV"), 1, GL_TRUE, &(cam.projection() * cam.view())[0][0]);
+    glUniformMatrix4fv(glGetUniformLocation(prog,"Model"), 1, GL_TRUE, &cam.gtoc()[0][0]);
     glUniform3f(glGetUniformLocation(prog,"lightPosition"), 200.,200.,200.);
     glUniform3f(glGetUniformLocation(prog,"lightColor"), 1.,1.,0.);
     glUniform3f(glGetUniformLocation(prog,"cameraPosition"), cam.position().x,cam.position().y,cam.position().z);
