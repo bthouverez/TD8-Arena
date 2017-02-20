@@ -11,19 +11,25 @@
 class Asteroid: public GameEntity
 {
 public:
-  Asteroid() : GameEntity() {}
+  Asteroid() : GameEntity() {}
   ~Asteroid() {}
 
-  virtual void init() 
+  virtual bool init()
   {
     m_rotation_axis = normalize(Vector(getRandomFloat(-1,1), getRandomFloat(-1,1), getRandomFloat(-1,1)));
     m_rotation_speed = getRandomFloat(0, 0.2);
-    m_radius = getRandomFloat(0.5, 3.0);    
+    m_scale = getRandomFloat(0.68, 2.7); 
+    m_boundingRadius = m_scale;    
+
+    return true;
   }
 
   virtual void update(float dt)
-  {
-    m_rotation_axis = normalize( m_rotation_axis + 0.01f * Vector(getRandomFloat(-1,1), getRandomFloat(-1,1), getRandomFloat(-1,1)) );    
+  {    
+    //m_rotation_axis = normalize( m_rotation_axis + 0.01f * Vector(getRandomFloat(-1,1), getRandomFloat(-1,1), getRandomFloat(-1,1)) );        
+    rotate(m_rotation_axis, dt * m_rotation_speed, false);
+
+    //GameEntity::update(dt);
   }
 
   virtual void release() {}
@@ -31,7 +37,6 @@ public:
 
 protected:
   Vector m_rotation_axis;
-  float m_rotation_speed;
-  float m_radius;
+  float m_rotation_speed;    
 };
 #endif

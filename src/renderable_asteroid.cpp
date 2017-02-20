@@ -4,7 +4,7 @@
 
 bool RenderableAsteroid::init()
 {
-  const int octaves = 4;
+  const int octaves = 6;
   const float persistence = 0.5f;
   const float lacunarity = 2.02f;
   const float frequency = 0.5f;
@@ -26,7 +26,7 @@ bool RenderableAsteroid::init()
       p.y = -1.0f + 2.0f*i/size; 
       p.z = -1.0f + 2.0f*j/size; 
       p = normalize(p);
-      p = p * (0.5f + fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
+      p = p * (0.25f + 0.75f*fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
       xpos[index + 0] = p.x;
       xpos[index + 1] = p.y;
       xpos[index + 2] = p.z;
@@ -35,7 +35,7 @@ bool RenderableAsteroid::init()
       p.y = -1.0f + 2.0f*(i+1)/size;
       p.z = -1.0f + 2.0f*j/size; 
       p = normalize(p);
-      p = p * (0.5f + fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
+      p = p * (0.25f + 0.75f*fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
       xpos[index + 3] = p.x;
       xpos[index + 4] = p.y;
       xpos[index + 5] = p.z;       
@@ -44,7 +44,7 @@ bool RenderableAsteroid::init()
       p.y = -1.0f + 2.0f*(i+1)/size;
       p.z = -1.0f + 2.0f*(j+1)/size; 
       p = normalize(p);
-      p = p * (0.5f + fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
+      p = p * (0.25f + 0.75f*fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
       xpos[index + 6] = p.x;
       xpos[index + 7] = p.y;
       xpos[index + 8] = p.z;            
@@ -54,7 +54,7 @@ bool RenderableAsteroid::init()
       p.y = -1.0f + 2.0f*i/size;
       p.z = -1.0f + 2.0f*j/size;
       p = normalize(p);
-      p = p * (0.5f + fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
+      p = p * (0.25f + 0.75f*fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
       xpos[index + 9] = p.x;
       xpos[index + 10] = p.y;
       xpos[index + 11] = p.z; 
@@ -63,7 +63,7 @@ bool RenderableAsteroid::init()
       p.y = -1.0f + 2.0f*(i+1)/size;
       p.z = -1.0f + 2.0f*(j+1)/size;
       p = normalize(p);
-      p = p * (0.5f + fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
+      p = p * (0.25f + 0.75f*fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
       xpos[index + 12] = p.x;
       xpos[index + 13] = p.y;
       xpos[index + 14] = p.z; 
@@ -72,7 +72,7 @@ bool RenderableAsteroid::init()
       p.y = -1.0f + 2.0f*i/size;
       p.z = -1.0f + 2.0f*(j+1)/size;
       p = normalize(p);
-      p = p * (0.5f + fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
+      p = p * (0.25f + 0.75f*fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
       xpos[index + 15] = p.x;
       xpos[index + 16] = p.y;
       xpos[index + 17] = p.z; 
@@ -120,7 +120,7 @@ bool RenderableAsteroid::init()
       p.y = 1.0f - 2.0f*i/size;
       p.z = -1.0f + 2.0f*j/size;
       p = normalize(p);
-      p = p * (0.5f + fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
+      p = p * (0.25f + 0.75f*fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
       xneg[index + 0] = p.x;
       xneg[index + 1] = p.y;
       xneg[index + 2] = p.z;
@@ -129,7 +129,7 @@ bool RenderableAsteroid::init()
       p.y = 1.0f - 2.0f*(i+1)/size;
       p.z = -1.0f + 2.0f*j/size;
       p = normalize(p);
-      p = p * (0.5f + fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
+      p = p * (0.25f + 0.75f*fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
       xneg[index + 3] = p.x;
       xneg[index + 4] = p.y;
       xneg[index + 5] = p.z;
@@ -138,7 +138,7 @@ bool RenderableAsteroid::init()
       p.y = 1.0f - 2.0f*(i+1)/size;
       p.z = -1.0f + 2.0f*(j+1)/size;
       p = normalize(p);
-      p = p * (0.5f + fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
+      p = p * (0.25f + 0.75f*fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
       xneg[index + 6] = p.x;
       xneg[index + 7] = p.y;
       xneg[index + 8] = p.z;
@@ -148,7 +148,7 @@ bool RenderableAsteroid::init()
       p.y = 1.0f - 2.0f*i/size; 
       p.z = -1.0f + 2.0f*j/size;
       p = normalize(p);
-      p = p * (0.5f + fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
+      p = p * (0.25f + 0.75f*fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
       xneg[index + 9] = p.x;
       xneg[index + 10] = p.y;
       xneg[index + 11] = p.z;
@@ -157,7 +157,7 @@ bool RenderableAsteroid::init()
       p.y = 1.0f - 2.0f*(i+1)/size;
       p.z = -1.0f + 2.0f*(j+1)/size;
       p = normalize(p);
-      p = p * (0.5f + fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
+      p = p * (0.25f + 0.75f*fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
       xneg[index + 12] = p.x;
       xneg[index + 13] = p.y;
       xneg[index + 14] = p.z;
@@ -166,7 +166,7 @@ bool RenderableAsteroid::init()
       p.y = 1.0f - 2.0f*i/size;
       p.z = -1.0f + 2.0f*(j+1)/size;
       p = normalize(p);
-      p = p * (0.5f + fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
+      p = p * (0.25f + 0.75f*fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
       xneg[index + 15] = p.x;
       xneg[index + 16] = p.y;
       xneg[index + 17] = p.z;
@@ -214,7 +214,7 @@ bool RenderableAsteroid::init()
       p.y = 1.0f;
       p.z = -1.0f + 2.0f*j/size;
       p = normalize(p);
-      p = p * (0.5f + fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
+      p = p * (0.25f + 0.75f*fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
       ypos[index + 0] = p.x;
       ypos[index + 1] = p.y;
       ypos[index + 2] = p.z;
@@ -223,7 +223,7 @@ bool RenderableAsteroid::init()
       p.y = 1.0f;
       p.z = -1.0f + 2.0f*j/size;
       p = normalize(p);
-      p = p * (0.5f + fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
+      p = p * (0.25f + 0.75f*fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
       ypos[index + 3] = p.x;
       ypos[index + 4] = p.y;
       ypos[index + 5] = p.z;
@@ -232,7 +232,7 @@ bool RenderableAsteroid::init()
       p.y = 1.0f;
       p.z = -1.0f + 2.0f*(j+1)/size;
       p = normalize(p);
-      p = p * (0.5f + fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
+      p = p * (0.25f + 0.75f*fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
       ypos[index + 6] = p.x;
       ypos[index + 7] = p.y;
       ypos[index + 8] = p.z;
@@ -242,7 +242,7 @@ bool RenderableAsteroid::init()
       p.y = 1.0f;
       p.z = -1.0f + 2.0f*j/size;
       p = normalize(p);
-      p = p * (0.5f + fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
+      p = p * (0.25f + 0.75f*fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
       ypos[index + 9] = p.x;
       ypos[index + 10] = p.y;
       ypos[index + 11] = p.z;
@@ -251,7 +251,7 @@ bool RenderableAsteroid::init()
       p.y = 1.0f;
       p.z = -1.0f + 2.0f*(j+1)/size;
       p = normalize(p);
-      p = p * (0.5f + fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
+      p = p * (0.25f + 0.75f*fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
       ypos[index + 12] = p.x;
       ypos[index + 13] = p.y;
       ypos[index + 14] = p.z;
@@ -260,7 +260,7 @@ bool RenderableAsteroid::init()
       p.y = 1.0f;
       p.z = -1.0f + 2.0f*(j+1)/size; 
       p = normalize(p);
-      p = p * (0.5f + fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
+      p = p * (0.25f + 0.75f*fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
       ypos[index + 15] = p.x;
       ypos[index + 16] = p.y;
       ypos[index + 17] = p.z;
@@ -308,7 +308,7 @@ bool RenderableAsteroid::init()
       p.y = -1.0f;
       p.z = -1.0f + 2.0f*j/size;
       p = normalize(p);
-      p = p * (0.5f + fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
+      p = p * (0.25f + 0.75f*fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
       yneg[index + 0] = p.x;
       yneg[index + 1] = p.y;
       yneg[index + 2] = p.z;
@@ -317,7 +317,7 @@ bool RenderableAsteroid::init()
       p.y = -1.0f;
       p.z = -1.0f + 2.0f*j/size;
       p = normalize(p);
-      p = p * (0.5f + fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
+      p = p * (0.25f + 0.75f*fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
       yneg[index + 3] = p.x;
       yneg[index + 4] = p.y;
       yneg[index + 5] = p.z;
@@ -326,7 +326,7 @@ bool RenderableAsteroid::init()
       p.y = -1.0f;
       p.z = -1.0f + 2.0f*(j+1)/size;
       p = normalize(p);
-      p = p * (0.5f + fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
+      p = p * (0.25f + 0.75f*fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
       yneg[index + 6] = p.x;
       yneg[index + 7] = p.y;
       yneg[index + 8] = p.z;
@@ -336,7 +336,7 @@ bool RenderableAsteroid::init()
       p.y = -1.0f;
       p.z = -1.0f + 2.0f*j/size;
       p = normalize(p);
-      p = p * (0.5f + fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
+      p = p * (0.25f + 0.75f*fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
       yneg[index + 9] = p.x;
       yneg[index + 10] = p.y;
       yneg[index + 11] = p.z;
@@ -345,7 +345,7 @@ bool RenderableAsteroid::init()
       p.y = -1.0f;
       p.z = -1.0f + 2.0f*(j+1)/size;
       p = normalize(p);
-      p = p * (0.5f + fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
+      p = p * (0.25f + 0.75f*fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
       yneg[index + 12] = p.x;
       yneg[index + 13] = p.y;
       yneg[index + 14] = p.z;
@@ -354,7 +354,7 @@ bool RenderableAsteroid::init()
       p.y = -1.0f;
       p.z = -1.0f + 2.0f*(j+1)/size;
       p = normalize(p);
-      p = p * (0.5f + fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
+      p = p * (0.25f + 0.75f*fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
       yneg[index + 15] = p.x;
       yneg[index + 16] = p.y;
       yneg[index + 17] = p.z;
@@ -403,7 +403,7 @@ bool RenderableAsteroid::init()
       p.y = -1.0f + 2.0f*j/size; 
       p.z = 1.0f;
       p = normalize(p);
-      p = p * (0.5f + fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
+      p = p * (0.25f + 0.75f*fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
       zpos[index + 0] = p.x;
       zpos[index + 1] = p.y;
       zpos[index + 2] = p.z;
@@ -412,7 +412,7 @@ bool RenderableAsteroid::init()
       p.y = -1.0f + 2.0f*j/size;
       p.z = 1.0f;
       p = normalize(p);
-      p = p * (0.5f + fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
+      p = p * (0.25f + 0.75f*fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
       zpos[index + 3] = p.x;
       zpos[index + 4] = p.y;
       zpos[index + 5] = p.z;
@@ -421,7 +421,7 @@ bool RenderableAsteroid::init()
       p.y = -1.0f + 2.0f*(j+1)/size; 
       p.z = 1.0f;
       p = normalize(p);
-      p = p * (0.5f + fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
+      p = p * (0.25f + 0.75f*fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
       zpos[index + 6] = p.x;
       zpos[index + 7] = p.y;
       zpos[index + 8] = p.z;
@@ -432,7 +432,7 @@ bool RenderableAsteroid::init()
       p.y = -1.0f + 2.0f*j/size;
       p.z = 1.0f;
       p = normalize(p);
-      p = p * (0.5f + fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
+      p = p * (0.25f + 0.75f*fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
       zpos[index + 9] = p.x;
       zpos[index + 10] = p.y;
       zpos[index + 11] = p.z;
@@ -441,7 +441,7 @@ bool RenderableAsteroid::init()
       p.y = -1.0f + 2.0f*(j+1)/size; 
       p.z = 1.0f;
       p = normalize(p);
-      p = p * (0.5f + fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
+      p = p * (0.25f + 0.75f*fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
       zpos[index + 12] = p.x;
       zpos[index + 13] = p.y;
       zpos[index + 14] = p.z;
@@ -450,7 +450,7 @@ bool RenderableAsteroid::init()
       p.y = -1.0f + 2.0f*(j+1)/size; 
       p.z = 1.0f; 
       p = normalize(p);
-      p = p * (0.5f + fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
+      p = p * (0.25f + 0.75f*fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
       zpos[index + 15] = p.x;
       zpos[index + 16] = p.y;
       zpos[index + 17] = p.z;
@@ -498,7 +498,7 @@ bool RenderableAsteroid::init()
       p.y = -1.0f + 2.0f*j/size;
       p.z = -1.0f;
       p = normalize(p);
-      p = p * (0.5f + fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
+      p = p * (0.25f + 0.75f*fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
       zneg[index + 0] = p.x;
       zneg[index + 1] = p.y;
       zneg[index + 2] = p.z;
@@ -507,7 +507,7 @@ bool RenderableAsteroid::init()
       p.y = -1.0f + 2.0f*j/size; 
       p.z = -1.0f;
       p = normalize(p);
-      p = p * (0.5f + fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
+      p = p * (0.25f + 0.75f*fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
       zneg[index + 3] = p.x;
       zneg[index + 4] = p.y;
       zneg[index + 5] = p.z;
@@ -516,7 +516,7 @@ bool RenderableAsteroid::init()
       p.y = -1.0f + 2.0f*(j+1)/size;
       p.z = -1.0f;
       p = normalize(p);
-      p = p * (0.5f + fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
+      p = p * (0.25f + 0.75f*fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
       zneg[index + 6] = p.x;
       zneg[index + 7] = p.y;
       zneg[index + 8] = p.z;
@@ -526,7 +526,7 @@ bool RenderableAsteroid::init()
       p.y = -1.0f + 2.0f*j/size;
       p.z = -1.0f;
       p = normalize(p);
-      p = p * (0.5f + fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
+      p = p * (0.25f + 0.75f*fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
       zneg[index + 9] = p.x;
       zneg[index + 10] = p.y;
       zneg[index + 11] = p.z;
@@ -535,7 +535,7 @@ bool RenderableAsteroid::init()
       p.y = -1.0f + 2.0f*(j+1)/size;
       p.z = -1.0f;
       p = normalize(p);
-      p = p * (0.5f + fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
+      p = p * (0.25f + 0.75f*fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
       zneg[index + 12] = p.x;
       zneg[index + 13] = p.y;
       zneg[index + 14] = p.z;
@@ -544,7 +544,7 @@ bool RenderableAsteroid::init()
       p.y = -1.0f + 2.0f*(j+1)/size;
       p.z = -1.0f;
       p = normalize(p);
-      p = p * (0.5f + fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
+      p = p * (0.25f + 0.75f*fractalSimplex3D(octaves, persistence, lacunarity, frequency, p + m_fbmSeed));
       zneg[index + 15] = p.x;
       zneg[index + 16] = p.y;
       zneg[index + 17] = p.z;
@@ -592,9 +592,6 @@ bool RenderableAsteroid::init()
     {
       vertices[face * CUBOID_SUBDIV*CUBOID_SUBDIV*18 + i] = faces[face][i];
       normals[face * CUBOID_SUBDIV*CUBOID_SUBDIV*18 + i] = faces_n[face][i];
-
-      //dbg;
-      //printf("face %d (%f)\n", face, vertices[face * CUBOID_SUBDIV*CUBOID_SUBDIV*18 + i]);
     }
 
   float * colors = new float[m_num_vertices * 3];
@@ -610,23 +607,6 @@ bool RenderableAsteroid::init()
     colors[3*i + 1] = gray;
     colors[3*i + 2] = gray;
   }
-  // DBG:
-  /*for (int face = 0; face < 6; ++face)
-    for (int i=0; i < CUBOID_SUBDIV*CUBOID_SUBDIV*6; ++i)
-    {
-      switch(face)
-      {
-        case 0:
-        case 1: colors[3*(face*CUBOID_SUBDIV*CUBOID_SUBDIV*6 +i) + 0] = 1.0f; colors[3*(face*CUBOID_SUBDIV*CUBOID_SUBDIV*6 +i) + 1] = 0.0f; colors[3*(face*CUBOID_SUBDIV*CUBOID_SUBDIV*6 +i) + 2] = 0.0f;
-                break;
-        case 2:
-        case 3: colors[3*(face*CUBOID_SUBDIV*CUBOID_SUBDIV*6 +i) + 0] = 0.0f; colors[3*(face*CUBOID_SUBDIV*CUBOID_SUBDIV*6 +i) + 1] = 1.0f; colors[3*(face*CUBOID_SUBDIV*CUBOID_SUBDIV*6 +i) + 2] = 0.0f;
-                break; 
-        case 4:
-        case 5: colors[3*(face*CUBOID_SUBDIV*CUBOID_SUBDIV*6 +i) + 0] = 0.0f; colors[3*(face*CUBOID_SUBDIV*CUBOID_SUBDIV*6 +i) + 1] = 0.0f; colors[3*(face*CUBOID_SUBDIV*CUBOID_SUBDIV*6 +i) + 2] = 1.0f;
-                break;
-      }
-    }*/
   
   // GL :
   m_usetexture = false;
@@ -649,6 +629,8 @@ bool RenderableAsteroid::init()
 
   glBindVertexArray(0);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+  printf("ATEROID BUILT using seed (%f, %f, %f)\n", m_fbmSeed.x, m_fbmSeed.y, m_fbmSeed.z);
 
   // Cleanup:
   delete[] xpos;
