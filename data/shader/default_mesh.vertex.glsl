@@ -15,7 +15,7 @@ out vec2 frag_texcoords;
 
 void main()
 {
-	frag_position = position;
+	frag_position = (Model * vec4(position, 1.0)).xyz;
 	frag_color = color;
 	frag_normal = normal;
 	frag_texcoords = texcoords;

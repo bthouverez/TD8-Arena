@@ -4,12 +4,14 @@
 #include "renderable_entity.hpp"
 #include <vec.h>
 
+#define CUBOID_SUBDIV     32
+
+
 
 class RenderableAsteroid: public RenderableEntity
 {
 public:
-
-  #define CUBOID_SUBDIV     32
+  
   RenderableAsteroid() : RenderableEntity(){}
   virtual ~RenderableAsteroid() {}
 

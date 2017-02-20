@@ -14,13 +14,17 @@
 class Common
 {
 public: 
-  Common() : id(Common::new_id()) {}
 
-  uint64 getID() { return id; }  
+  Common() : id(Common::new_id()) {}
+  virtual ~Common(){}
+
+  uint64 getID() const { return id; }  
+
+
 
 private:
-  static uint64 new_id(){ return ++id_compteur; }
 
+  static uint64 new_id(){ return ++id_compteur; }
   static uint64 id_compteur;
 
   uint64 id;

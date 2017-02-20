@@ -14,6 +14,7 @@ void RenderableEntity::draw()
     glDrawElements(GL_TRIANGLES, m_num_indices, GL_UNSIGNED_INT, 0/* element array buffer offset*/);
   else 
     glDrawArrays(GL_TRIANGLES, 0, m_num_vertices);
+  glBindVertexArray(0);
 }
 
 void RenderableEntity::release()
