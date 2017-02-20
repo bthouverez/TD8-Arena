@@ -6,8 +6,65 @@
 #include "leapinputreader.h"
 #include "game_entity.hpp"
 #include "renderable_entity.hpp"
+#include "chessboard.hpp"
 
 #include <string>
+
+const GLchar *vert_shader =
+    "#version 330\n"
+    "layout(location = 0) in vec3 position;\n"
+    "layout(location = 1) in vec3 color;\n"
+    "out vec3 vcolor;\n"
+    "uniform mat4 MVP;\n"
+    "\n"
+    "void main()\n"
+    "{\n"
+    "    gl_Position = MVP * vec4(position, 1.0);\n"
+    "    vcolor = color;\n"
+    "}\n";
+
+  const GLchar *frag_shader =
+    "#version 330\n"
+    "in vec3 vcolor;\n"
+    "out vec4 color;\n"
+    "\n"
+    "void main() {\n"
+    "    color = vec4(vcolor, 0);\n"
+    "}\n";
+
+static GLuint compile_shader(GLenum type, const GLchar *source)
+{
+    GLuint shader = glCreateShader(type);
+    glShaderSource(shader, 1, &source, NULL);
+    glCompileShader(shader);
+    GLint param;
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &param);
+    if (!param) {
+        GLchar log[4096];
+        glGetShaderInfoLog(shader, sizeof(log), NULL, log);
+        fprintf(stderr, "error: %s: %s\n",
+                type == GL_FRAGMENT_SHADER ? "frag" : "vert", (char *) log);
+        exit(EXIT_FAILURE);
+    }
+    return shader;
+}
+
+static GLuint link_program(GLuint vert, GLuint frag)
+{
+    GLuint program = glCreateProgram();
+    glAttachShader(program, vert);
+    glAttachShader(program, frag);
+    glLinkProgram(program);
+    GLint param;
+    glGetProgramiv(program, GL_LINK_STATUS, &param);
+    if (!param) {
+        GLchar log[4096];
+        glGetProgramInfoLog(program, sizeof(log), NULL, log);
+        fprintf(stderr, "error: link: %s\n", (char *) log);
+        exit(EXIT_FAILURE);
+    }
+    return program;
+}
 
 int main(int argc, char** argv)
 {
@@ -59,15 +116,16 @@ int main(int argc, char** argv)
 
   ////////// GL Parameters //////////
 
-  //glEnable(GL_DEPTH_TEST);
-  glDisable(GL_DEPTH_TEST);
-  glClearDepth(1.0f);
+  glEnable(GL_DEPTH_TEST);
   glClearColor(0, 0, 0, 1);
 
   ////////// Background init //////////
 
   ScreenQuad quad;
   quad.init();
+
+  Chessboard chess;
+  chess.init(chess_width, chess_height, chess_size);
 
   ////////// Shaders init //////////
 
@@ -78,6 +136,12 @@ int main(int argc, char** argv)
     std::cout << "Can not load shader programs ..." << std::endl;
     exit(1);
   }
+
+  GLuint vert = compile_shader(GL_VERTEX_SHADER, vert_shader);
+  GLuint frag = compile_shader(GL_FRAGMENT_SHADER, frag_shader);
+  GLuint program = link_program(vert, frag);
+  glDeleteShader(frag);
+  glDeleteShader(vert);
 
 
   while(win->isActive())
@@ -112,23 +176,32 @@ int main(int argc, char** argv)
 
     ////////// Background draw //////////
 
-    GLuint prog = background_program.getProgramID();
-    glUseProgram(prog);
-    glActiveTexture(GL_TEXTURE0 + 0);
-    glBindTexture(GL_TEXTURE_2D, quad.getTexture());
-    glUniform1i(glGetUniformLocation(prog, "image"), 0);
-    quad.draw();
-    glUseProgram(0);
+    // glDisable(GL_DEPTH_TEST);
+    // GLuint prog = background_program.getProgramID();
+    // glUseProgram(prog);
+    // glActiveTexture(GL_TEXTURE0 + 0);
+    // glBindTexture(GL_TEXTURE_2D, quad.getTexture());
+    // glUniform1i(glGetUniformLocation(prog, "image"), 0);
+    // quad.draw();
+    // glUseProgram(0);
 
     ////////// Renderable draw //////////
 
-    prog = renderable_program.getProgramID();
-    glUseProgram(prog);
-    glUniformMatrix4fv(glGetUniformLocation(prog,"PV"), 1, GL_TRUE, &(cam.projection() * cam.view())[0][0]);
-    glUniformMatrix4fv(glGetUniformLocation(prog,"Model"), 1, GL_TRUE, &cam.gtoc()[0][0]);
-    glUniform3f(glGetUniformLocation(prog,"lightPosition"), 200.,200.,200.);
-    glUniform3f(glGetUniformLocation(prog,"lightColor"), 1.,1.,0.);
-    glUniform3f(glGetUniformLocation(prog,"cameraPosition"), cam.position().x,cam.position().y,cam.position().z);
+    // glEnable(GL_DEPTH_TEST);
+    // prog = renderable_program.getProgramID();
+    // glUseProgram(prog);
+    // glUniformMatrix4fv(glGetUniformLocation(prog,"PV"), 1, GL_TRUE, &(cam.projection() * cam.view() * cam.gtoc())[0][0]);
+    // glUniformMatrix4fv(glGetUniformLocation(prog,"Model"), 1, GL_TRUE, Identity().buffer());
+    // glUniform3f(glGetUniformLocation(prog,"lightPosition"), 200.,200.,200.);
+    // glUniform3f(glGetUniformLocation(prog,"lightColor"), 1.,1.,0.);
+    // glUniform3f(glGetUniformLocation(prog,"cameraPosition"), cam.position().x,cam.position().y,cam.position().z);
+    // chess.draw();
+    // glUseProgram(0);
+
+    glUseProgram(program);
+    glm::mat4 VP = cam.projection() * cam.view() * cam.gtoc();
+    // glm::mat4 VP = glm::mat4(1.0);
+    glUniformMatrix4fv(glGetUniformLocation(program,"MVP"), 1, GL_FALSE, &VP[0][0]);
     renderable_ship.draw();
     glUseProgram(0);
 

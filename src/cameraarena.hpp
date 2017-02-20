@@ -31,7 +31,7 @@ public:
     GLuint background();
     void release();
 
-    void frustum(int w, int h, float near = 200.f, float far = 10000.f);
+    void frustum(int w, int h, float near = 1.f, float far = 10000.f);
     glm::vec3 unproject(glm::vec2 point, float sz);
 
     

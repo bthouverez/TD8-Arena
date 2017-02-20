@@ -140,6 +140,7 @@ bool RenderableEntity::loadOBJ(const std::string & filename)
     glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid*)(3*m_num_vertices*sizeof(vec3)));//texcoords
     glEnableVertexAttribArray(3);
   }
+  
   if (m_useindex)
   {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);

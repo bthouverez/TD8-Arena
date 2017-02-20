@@ -17,7 +17,7 @@ void main()
 {
 	frag_position = (Model * vec4(position, 1.0)).xyz;
 	frag_color = color;
-	frag_normal = normal;
+	frag_normal = normalize((Model * vec4(normal,0.0)).xyz);
 	frag_texcoords = texcoords;
 	gl_Position = PV * Model * vec4(position, 1.0);
 }

@@ -69,14 +69,14 @@ bool CameraArena::extrinsics(const int w, const int h, const float s)
 		{
 			T = tvec.clone();
     		cv::Rodrigues(rvec,R);
-			/*std::cout << "extrinsics parameters : " << std::endl;
+			std::cout << "extrinsics parameters : " << std::endl;
 			std::cout << R << std::endl;
 			std::cout << T << std::endl;
         	double x = T.at<double>(0)/10.;
         	double y = T.at<double>(1)/10.;
         	double z = T.at<double>(2)/10.;
         	double dist = sqrt(x*x+y*y+z*z);
-			std::cout << "Distance = " << dist << std::endl;*/
+			std::cout << "Distance = " << dist << std::endl;
 		}
 
 		return ext;
@@ -232,11 +232,10 @@ void CameraArena::read(std::string filename)
     	std::cout << A << std::endl;
     	// std::cout << K << std::endl;
 
-        intrinsic_matrix = glm::mat3(   A.at<double>(0,0), A.at<double>(1,0), A.at<double>(2,0),
-                                        A.at<double>(0,1), A.at<double>(1,1), A.at<double>(2,1),
-                                        A.at<double>(0,2), A.at<double>(1,2), A.at<double>(2,2));
+        intrinsic_matrix = glm::mat3(   A.at<double>(0,0), A.at<double>(0,1), A.at<double>(0,2),
+                                        A.at<double>(1,0), A.at<double>(1,1), A.at<double>(1,2),
+                                        A.at<double>(2,0), A.at<double>(2,1), A.at<double>(2,2) );
     }
-
 }    
 
 void CameraArena::write(std::string filename)
@@ -244,7 +243,7 @@ void CameraArena::write(std::string filename)
 	std::ofstream file( filename.c_str() );
     if( !file ) 
     {
-        std::cout << "Can not load parameters file " << std::endl;
+        std::cout << "Can not write parameters file " << std::endl;
     }
     else
     {
@@ -333,6 +332,9 @@ glm::vec3 CameraArena::unproject(glm::vec2 point, float sz)
 
 void CameraArena::frustum(int w, int h, float near, float far)
 {
+    // Camera depth vision
+    near = 200.f; // 2 cm  
+    far = 4000.f; // 2 meters
     // Frustum faces points
     glm::vec3 mid =     unproject(glm::vec2(w/2.f, h/2.f),near);
     glm::vec3 left =    unproject(glm::vec2(0.f, h/2.f),near);
@@ -340,19 +342,16 @@ void CameraArena::frustum(int w, int h, float near, float far)
     glm::vec3 bottom =  unproject(glm::vec2(w/2.f, 0.f),near);
     glm::vec3 top =     unproject(glm::vec2(w/2.f, h),near);
     // Frustum
-    float frustum[4];
+    float frustum[6];
     frustum[0] = -1.0f * distance(mid, left);
     frustum[1] = 1.0 * distance(mid, right);
     frustum[2] = -1.0f * distance(mid, bottom);
     frustum[3] = 1.0 * distance(mid, top);
+    frustum[4] = near;
+    frustum[5] = far;
 
-    // float a = (frustum[1] + frustum[0]) / (frustum[1] - frustum[0]);
-    // float b = (frustum[3] + frustum[2]) / (frustum[3] - frustum[2]);
-    // float c = -(far + near) / (far - near);
-    // float d = -(2 * far * near) / (far - near);
-    // float e = (2 * near) / (frustum[1] - frustum[0]);
-    // float f = (2 * near) / (frustum[3] - frustum[2]);
+    projection_matrix =  glm::frustum(frustum[0], frustum[1], frustum[2], frustum[3], frustum[4], frustum[5]);
 
-    projection_matrix = glm::frustum(frustum[0], frustum[1], frustum[2], frustum[3], near, far);
     view_matrix = glm::lookAt(glm::vec3(0.f,0.f,0.f),glm::vec3(0.f,0.f,1.f),glm::vec3(0.f,-1.f,0.f));
+
 }
