@@ -30,6 +30,7 @@ public:
     rotate(m_rotation_axis, dt * m_rotation_speed, false);
 
     //GameEntity::update(dt);
+    updatePosition(dt);    
   }
 
   virtual void release() {}

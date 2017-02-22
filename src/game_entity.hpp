@@ -30,7 +30,7 @@ public:
     return true;
   }
   
-  virtual void update(float dt) { updatePosition(); }
+  virtual void update(float dt) { updatePosition(dt); }
   
   virtual void release() {}
 
@@ -39,13 +39,15 @@ public:
 
   const Point & getPosition() const { return m_position; }
   
-  void setMovingDirection(const Vector & v) { m_direction = v; }
+  void setMovingDirection(const Vector & v) { m_direction = normalize(v); }
 
   const Vector & getMovingDirection() const { return m_direction; }
 
   const Transform & getOrientation() const { return m_orientation; }
 
   void setOrientation(const Transform & o){ m_orientation = o; }
+
+  void setSpeed(float s) { m_speed = s; }
 
   void setMaxSpeed(float smax) { m_speed_max = smax; }
 
@@ -97,11 +99,20 @@ public:
   float getBoundingRadius() const { return m_boundingRadius; }
 
 
+  /** Test if a point collides with bounding radius : point is given in world coordinates */
+  bool collidePoint(const Point &p) const
+  {    
+    float d = distance(m_position, p);
+    return d < m_boundingRadius;
+  }
+
+
 protected:
 
-  virtual void updatePosition()
-  {
-    m_position = m_position + m_speed * normalize(m_direction);
+  virtual void updatePosition(float dt)
+  {    
+    Transform t = Translation(dt*m_speed*(m_direction));
+    m_position = t(m_position);
   }
 
   Transform m_orientation;// rotation matrix

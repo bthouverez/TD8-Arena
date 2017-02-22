@@ -630,8 +630,6 @@ bool RenderableAsteroid::init()
   glBindVertexArray(0);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-  printf("ATEROID BUILT using seed (%f, %f, %f)\n", m_fbmSeed.x, m_fbmSeed.y, m_fbmSeed.z);
-
   // Cleanup:
   delete[] xpos;
   delete[] xpos_n;
