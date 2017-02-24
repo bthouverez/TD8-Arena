@@ -110,8 +110,10 @@ int main(int argc, char** argv)
     cam.get();
     cmp++;
   }
-  while(cmp < 5 && !cam.extrinsics(chess_width, chess_height, chess_size));
+  while(cmp < 16 or !cam.extrinsics(chess_width, chess_height, chess_size));
   cam.frustum( width, height );
+
+  float GAME_SCALE = chess_size * 0.5f;
 
   ////////// Ship //////////
 
@@ -139,7 +141,7 @@ int main(int argc, char** argv)
     a->init();
 
     const RenderableAsteroid * ra = renderable_asteroids[rand()%renderable_asteroids.size()];    
-    Point pos(getRandomFloat(-10.0f, 0.0f), getRandomFloat(-16.0f, 16.0f), getRandomFloat(-3.0f, 3.0f));
+    Point pos(GAME_SCALE * getRandomFloat(-30.0f, 30.0f), GAME_SCALE * getRandomFloat(-120.0f, 0.0f), -GAME_SCALE * getRandomFloat(0.0f, 6.0f));
 
     a->setRenderableEntityID(ra->getID());        
     a->setPosition(pos);    
@@ -198,6 +200,11 @@ int main(int argc, char** argv)
 
     // TODO
 
+    for (auto a : asteroids)
+    {      
+      a->update(100.0f*1.0f/60.0f);
+    }
+
     ////////// Background Update //////////
 
     cam.get();
@@ -228,15 +235,15 @@ int main(int argc, char** argv)
     glUniformMatrix4fv(glGetUniformLocation(prog,"PV"), 1, GL_FALSE, &((cam.projection() * cam.view() * cam.gtoc())[0][0]));
     //glUniformMatrix4fv(glGetUniformLocation(prog,"PV"), 1, GL_FALSE, &((cam.view() * cam.gtoc())[0][0]));
     glUniformMatrix4fv(glGetUniformLocation(prog,"Model"), 1, GL_TRUE, Identity().buffer());
-    glUniform3f(glGetUniformLocation(prog,"lightPosition"), 200.,200.,200.);
+    glUniform3f(glGetUniformLocation(prog,"lightPosition"), 40 * GAME_SCALE, 0 * GAME_SCALE, -40 * GAME_SCALE);
     glUniform3f(glGetUniformLocation(prog,"lightColor"), 1.0,1.0,1.0);
     glUniform3f(glGetUniformLocation(prog,"cameraPosition"), cam.position().x,cam.position().y,cam.position().z);
     chess.draw();
-    glUniformMatrix4fv(glGetUniformLocation(prog, "Model"), 1, GL_TRUE, Scale(500.,500.,500.).buffer());
+    glUniformMatrix4fv(glGetUniformLocation(prog, "Model"), 1, GL_TRUE, (Translation(6.0 * GAME_SCALE,4.0 * GAME_SCALE,-2*GAME_SCALE) * RotationX(90) * Scale(GAME_SCALE,GAME_SCALE,GAME_SCALE)).buffer());
     renderable_ship.draw();
-    /*for (auto a: asteroids)
+    for (auto a: asteroids)
     {      
-      glUniformMatrix4fv(glGetUniformLocation(prog, "Model"), 1, GL_TRUE, (a->getModelMatrix() * Scale(500.,500.,500.)).buffer());
+      glUniformMatrix4fv(glGetUniformLocation(prog, "Model"), 1, GL_TRUE, (a->getModelMatrix() * Scale(GAME_SCALE,GAME_SCALE,GAME_SCALE)).buffer());
       uint64 renderable_id = a->getRenderableEntityID();      
       for (int j=0; j < (int)renderable_asteroids.size();++j)
         if (renderable_asteroids[j]->getID() == renderable_id)
@@ -244,7 +251,7 @@ int main(int argc, char** argv)
           renderable_asteroids[j]->draw();          
           break;
         }
-    }*/
+    }
     glUseProgram(0);
 
     //glUseProgram(program);
