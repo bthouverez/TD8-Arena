@@ -7,8 +7,12 @@
 #include "game_entity.hpp"
 #include "renderable_entity.hpp"
 #include "chessboard.hpp"
+#include "renderable_asteroid.hpp"
+#include "asteroid.hpp"
 
 #include <string>
+#include <vector>
+#include <list>
 
 const GLchar *vert_shader =
     "#version 330\n"
@@ -99,12 +103,14 @@ int main(int argc, char** argv)
   // Load intrinsics parameters
   cam.read(argv[7]);
   // Calc extrinsics parameters
+  int cmp = 0;
   do
   {
     std::cout << "Camera calibration ..." << std::endl;
     cam.get();
+    cmp++;
   }
-  while(!cam.extrinsics(chess_width, chess_height, chess_size));
+  while(cmp < 5 && !cam.extrinsics(chess_width, chess_height, chess_size));
   cam.frustum( width, height );
 
   ////////// Ship //////////
@@ -114,10 +120,38 @@ int main(int argc, char** argv)
   GameEntity ship;
   ship.setRenderableEntityID(renderable_ship.getID());
 
+  ////////// ASTEROID //////////
+
+  #define NB_ASTEROIDS  16
+  #define NB_ASTEROID_MODELS  7
+  std::vector<RenderableAsteroid *> renderable_asteroids;
+  for (int i=0; i < NB_ASTEROID_MODELS; ++i)
+  {
+    RenderableAsteroid * a = new RenderableAsteroid();
+    a->init();
+    renderable_asteroids.push_back(a);
+  }
+
+  std::list<Asteroid*> asteroids;
+  for (int i=0; i < NB_ASTEROIDS; ++i)
+  {
+    Asteroid * a = new Asteroid;
+    a->init();
+
+    const RenderableAsteroid * ra = renderable_asteroids[rand()%renderable_asteroids.size()];    
+    Point pos(getRandomFloat(-10.0f, 0.0f), getRandomFloat(-16.0f, 16.0f), getRandomFloat(-3.0f, 3.0f));
+
+    a->setRenderableEntityID(ra->getID());        
+    a->setPosition(pos);    
+
+    asteroids.push_back(a);
+  }
+
   ////////// GL Parameters //////////
 
   glEnable(GL_DEPTH_TEST);
   glClearColor(0, 0, 0, 1);
+  glClearDepth(1.0f);
 
   ////////// Background init //////////
 
@@ -176,38 +210,54 @@ int main(int argc, char** argv)
 
     ////////// Background draw //////////
 
-    // glDisable(GL_DEPTH_TEST);
-    // GLuint prog = background_program.getProgramID();
-    // glUseProgram(prog);
-    // glActiveTexture(GL_TEXTURE0 + 0);
-    // glBindTexture(GL_TEXTURE_2D, quad.getTexture());
-    // glUniform1i(glGetUniformLocation(prog, "image"), 0);
-    // quad.draw();
-    // glUseProgram(0);
+    GLuint prog;
+    glDisable(GL_DEPTH_TEST);
+    prog = background_program.getProgramID();
+    glUseProgram(prog);
+    glActiveTexture(GL_TEXTURE0 + 0);
+    glBindTexture(GL_TEXTURE_2D, quad.getTexture());
+    glUniform1i(glGetUniformLocation(prog, "image"), 0);
+    quad.draw();
+    glUseProgram(0);
 
     ////////// Renderable draw //////////
 
-    // glEnable(GL_DEPTH_TEST);
-    // prog = renderable_program.getProgramID();
-    // glUseProgram(prog);
-    // glUniformMatrix4fv(glGetUniformLocation(prog,"PV"), 1, GL_TRUE, &(cam.projection() * cam.view() * cam.gtoc())[0][0]);
-    // glUniformMatrix4fv(glGetUniformLocation(prog,"Model"), 1, GL_TRUE, Identity().buffer());
-    // glUniform3f(glGetUniformLocation(prog,"lightPosition"), 200.,200.,200.);
-    // glUniform3f(glGetUniformLocation(prog,"lightColor"), 1.,1.,0.);
-    // glUniform3f(glGetUniformLocation(prog,"cameraPosition"), cam.position().x,cam.position().y,cam.position().z);
-    // chess.draw();
-    // glUseProgram(0);
-
-    glUseProgram(program);
-    glm::mat4 VP = cam.projection() * cam.view() * cam.gtoc();
-    // glm::mat4 VP = glm::mat4(1.0);
-    glUniformMatrix4fv(glGetUniformLocation(program,"MVP"), 1, GL_FALSE, &VP[0][0]);
+    glEnable(GL_DEPTH_TEST);
+    prog = renderable_program.getProgramID();
+    glUseProgram(prog);
+    glUniformMatrix4fv(glGetUniformLocation(prog,"PV"), 1, GL_FALSE, &((cam.projection() * cam.view() * cam.gtoc())[0][0]));
+    //glUniformMatrix4fv(glGetUniformLocation(prog,"PV"), 1, GL_FALSE, &((cam.view() * cam.gtoc())[0][0]));
+    glUniformMatrix4fv(glGetUniformLocation(prog,"Model"), 1, GL_TRUE, Identity().buffer());
+    glUniform3f(glGetUniformLocation(prog,"lightPosition"), 200.,200.,200.);
+    glUniform3f(glGetUniformLocation(prog,"lightColor"), 1.0,1.0,1.0);
+    glUniform3f(glGetUniformLocation(prog,"cameraPosition"), cam.position().x,cam.position().y,cam.position().z);
+    chess.draw();
+    glUniformMatrix4fv(glGetUniformLocation(prog, "Model"), 1, GL_TRUE, Scale(500.,500.,500.).buffer());
     renderable_ship.draw();
+    /*for (auto a: asteroids)
+    {      
+      glUniformMatrix4fv(glGetUniformLocation(prog, "Model"), 1, GL_TRUE, (a->getModelMatrix() * Scale(500.,500.,500.)).buffer());
+      uint64 renderable_id = a->getRenderableEntityID();      
+      for (int j=0; j < (int)renderable_asteroids.size();++j)
+        if (renderable_asteroids[j]->getID() == renderable_id)
+        {
+          renderable_asteroids[j]->draw();          
+          break;
+        }
+    }*/
     glUseProgram(0);
+
+    //glUseProgram(program);
+    //glm::mat4 VP = cam.projection() * cam.view() * cam.gtoc();    
+    //glUniformMatrix4fv(glGetUniformLocation(program,"MVP"), 1, GL_FALSE, &VP[0][0]);
+    //renderable_ship.draw();
+    //glUseProgram(0);
 
     ////////// Update Window //////////
 
     win->refresh();
+
+
 
     ////////// Clean //////////
 

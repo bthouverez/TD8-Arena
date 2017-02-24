@@ -43,7 +43,7 @@ public:
 private:
     cv::VideoCapture camera;
     cv::Mat frame, A , K ,  R , T;
-    GLuint texture;
+    GLuint texture = 0;
 
     glm::mat3 intrinsic_matrix;
     glm::mat4 projection_matrix, gtoc_matrix, view_matrix;
