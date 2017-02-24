@@ -9,6 +9,8 @@
 #include "chessboard.hpp"
 #include "renderable_asteroid.hpp"
 #include "asteroid.hpp"
+#include "renderable_laser.hpp"
+#include "laser.hpp"
 
 #include <string>
 #include <vector>
@@ -70,6 +72,18 @@ static GLuint link_program(GLuint vert, GLuint frag)
     return program;
 }
 
+
+//////////// GLOBALS ////////////
+
+float GAME_SCALE;
+
+/////////// Fwdcl //////////////
+
+void explodeAsteroid(std::list<Asteroid*>::iterator & it, std::list<Asteroid*> & asteroids, const std::vector<RenderableAsteroid*> & renderable_asteroids);
+
+
+/////////// MAIN ///////////////
+
 int main(int argc, char** argv)
 {
   ////////// Parameters //////////
@@ -88,6 +102,10 @@ int main(int argc, char** argv)
   int chess_height = atoi(argv[5]);
   int chess_size = atoi(argv[6]);
   int device = argc == 9 ? atoi(argv[8]) : 0;
+
+  // Echelle du jeu en fonction de la taille de la mire:
+  GAME_SCALE = chess_size * 0.5f;
+
 
   ////////// GL Window //////////
 
@@ -113,14 +131,28 @@ int main(int argc, char** argv)
   while(cmp < 16 or !cam.extrinsics(chess_width, chess_height, chess_size));
   cam.frustum( width, height );
 
-  float GAME_SCALE = chess_size * 0.5f;
-
+  
   ////////// Ship //////////
 
   RenderableEntity renderable_ship;
   renderable_ship.loadOBJ("data/object/tie.obj");
   GameEntity ship;
   ship.setRenderableEntityID(renderable_ship.getID());
+  ship.setPosition(Point(6.0 * GAME_SCALE,4.0 * GAME_SCALE,-2*GAME_SCALE));// position de départ du vaisseau
+  ship.rotateX(90.0f, false);// orientation de départ
+  ship.setMovingDirection(Vector(0.0f, -1.0f, 0.0f));
+  ship.setScale(GAME_SCALE);
+
+  ////////// Lasers //////////
+  std::vector<RenderableLaser*> renderable_lasers;
+  RenderableLaser * laser_green = new RenderableLaser;
+  laser_green->init(Color(0,1,0));
+  renderable_lasers.push_back(laser_green);
+  RenderableLaser * laser_red = new RenderableLaser;
+  laser_red->init(Color(1,0,0));
+  renderable_lasers.push_back(laser_red);
+  
+  std::list<Laser*> lasers;
 
   ////////// ASTEROID //////////
 
@@ -144,7 +176,8 @@ int main(int argc, char** argv)
     Point pos(GAME_SCALE * getRandomFloat(-30.0f, 30.0f), GAME_SCALE * getRandomFloat(-120.0f, 0.0f), -GAME_SCALE * getRandomFloat(0.0f, 6.0f));
 
     a->setRenderableEntityID(ra->getID());        
-    a->setPosition(pos);    
+    a->setPosition(pos);  
+    a->setScale(GAME_SCALE);  
 
     asteroids.push_back(a);
   }
@@ -165,6 +198,10 @@ int main(int argc, char** argv)
 
   ////////// Shaders init //////////
 
+  Shader laserprogram("data/shader/laser.vertex.glsl", "data/shader/laser.fragment.glsl");
+  if (!laserprogram.init())
+    return -1;
+  GLuint laserprog = laserprogram.getProgramID();
   Shader background_program("data/shader/screenquad.vertex.glsl", "data/shader/screenquad.fragment.glsl");
   Shader renderable_program("data/shader/default_mesh.vertex.glsl", "data/shader/default_mesh.fragment.glsl");
   if (!background_program.init() || !renderable_program.init())
@@ -200,9 +237,42 @@ int main(int argc, char** argv)
 
     // TODO
 
+    // Test explode asteroid:
+    if (rand() %64 == 0)
+    {
+      int index = rand() % asteroids.size();
+      int i=0;
+      for (std::list<Asteroid*>::iterator it = asteroids.begin(); it != asteroids.end(); ++it, ++i)
+        if (i == index)
+        {
+          explodeAsteroid(it, asteroids, renderable_asteroids);
+          break;
+        }
+      printf("EXPLODE!\n");
+    }
+
     for (auto a : asteroids)
     {      
       a->update(100.0f*1.0f/60.0f);
+    }
+
+    // test tir:
+    if (rand() % 32 == 0)
+    {
+      Laser * laser = new Laser;
+      laser->init();
+      laser->setRenderableEntityID(renderable_lasers[0]->getID());
+      laser->setLength(4.0f * GAME_SCALE);
+      laser->setSpeed(0.1f * GAME_SCALE);      
+      laser->setPosition(ship.getPosition() + 2.0f*GAME_SCALE * ship.getMovingDirection());      
+      laser->setMovingDirection(ship.getMovingDirection());
+      lasers.push_back(laser);    
+      //printf("SHOOT!\n");
+    }
+
+    for (auto l : lasers)
+    {      
+      l->update(100.0f*1.0f/60.0f);
     }
 
     ////////// Background Update //////////
@@ -233,17 +303,18 @@ int main(int argc, char** argv)
     prog = renderable_program.getProgramID();
     glUseProgram(prog);
     glUniformMatrix4fv(glGetUniformLocation(prog,"PV"), 1, GL_FALSE, &((cam.projection() * cam.view() * cam.gtoc())[0][0]));
-    //glUniformMatrix4fv(glGetUniformLocation(prog,"PV"), 1, GL_FALSE, &((cam.view() * cam.gtoc())[0][0]));
     glUniformMatrix4fv(glGetUniformLocation(prog,"Model"), 1, GL_TRUE, Identity().buffer());
     glUniform3f(glGetUniformLocation(prog,"lightPosition"), 40 * GAME_SCALE, 0 * GAME_SCALE, -40 * GAME_SCALE);
     glUniform3f(glGetUniformLocation(prog,"lightColor"), 1.0,1.0,1.0);
     glUniform3f(glGetUniformLocation(prog,"cameraPosition"), cam.position().x,cam.position().y,cam.position().z);
     chess.draw();
-    glUniformMatrix4fv(glGetUniformLocation(prog, "Model"), 1, GL_TRUE, (Translation(6.0 * GAME_SCALE,4.0 * GAME_SCALE,-2*GAME_SCALE) * RotationX(90) * Scale(GAME_SCALE,GAME_SCALE,GAME_SCALE)).buffer());
+
+    glUniformMatrix4fv(glGetUniformLocation(prog, "Model"), 1, GL_TRUE, ship.getModelMatrix().buffer());
     renderable_ship.draw();
+    
     for (auto a: asteroids)
     {      
-      glUniformMatrix4fv(glGetUniformLocation(prog, "Model"), 1, GL_TRUE, (a->getModelMatrix() * Scale(GAME_SCALE,GAME_SCALE,GAME_SCALE)).buffer());
+      glUniformMatrix4fv(glGetUniformLocation(prog, "Model"), 1, GL_TRUE, a->getModelMatrix().buffer());
       uint64 renderable_id = a->getRenderableEntityID();      
       for (int j=0; j < (int)renderable_asteroids.size();++j)
         if (renderable_asteroids[j]->getID() == renderable_id)
@@ -253,12 +324,30 @@ int main(int argc, char** argv)
         }
     }
     glUseProgram(0);
+    
 
-    //glUseProgram(program);
-    //glm::mat4 VP = cam.projection() * cam.view() * cam.gtoc();    
-    //glUniformMatrix4fv(glGetUniformLocation(program,"MVP"), 1, GL_FALSE, &VP[0][0]);
-    //renderable_ship.draw();
-    //glUseProgram(0);
+    ////////// Lasers draw ////////////
+
+    glUseProgram(laserprog);
+    glUniformMatrix4fv(glGetUniformLocation(laserprog, "PV"), 1, GL_FALSE, &((cam.projection() * cam.view() * cam.gtoc())[0][0]));
+    for (auto laser: lasers)
+    {
+      Point lasercenter = laser->getPosition();
+      Vector laserdir = laser->getMovingDirection();
+      float laserlength = laser->getLength();
+      glUniform3f(glGetUniformLocation(laserprog, "laserCenterPosition"), lasercenter.x, lasercenter.y, lasercenter.z);
+      glUniform3f(glGetUniformLocation(laserprog, "laserDirection"), laserdir.x, laserdir.y, laserdir.z);
+      glUniform1f(glGetUniformLocation(laserprog, "laserLength"), laserlength);
+
+      uint64 renderable_id = laser->getRenderableEntityID();      
+      for (int j=0; j < (int)renderable_lasers.size();++j)
+        if (renderable_lasers[j]->getID() == renderable_id)
+        {          
+          renderable_lasers[j]->draw();          
+          break;
+        } 
+    }
+
 
     ////////// Update Window //////////
 
@@ -277,4 +366,34 @@ int main(int argc, char** argv)
   renderable_ship.release();
 
   return 0;
+}
+
+
+
+
+void explodeAsteroid(std::list<Asteroid*>::iterator & it, std::list<Asteroid*> & asteroids, const std::vector<RenderableAsteroid*> & renderable_asteroids)
+{
+  Asteroid * a = *it;
+  asteroids.erase(it);
+
+  int numa = 3 + rand() % 5;
+  for (int j=0; j < numa; ++j)
+  {
+    Asteroid * suba = new Asteroid;
+    suba->init();
+
+    const RenderableAsteroid * ra = renderable_asteroids[rand()%renderable_asteroids.size()];
+    suba->setRenderableEntityID(ra->getID()); 
+    
+    Vector direction(getRandomFloat(-1.0f, 1.0f), getRandomFloat(-1.0f, 1.0f), getRandomFloat(-1.0f, 1.0f));        
+    
+    suba->setPosition(a->getPosition());
+    suba->setMovingDirection(direction);
+    suba->setSpeed(getRandomFloat(0.0f, 0.02f) * GAME_SCALE);
+    suba->setScale(a->getScale() / getRandomFloat(2.0f, 4.0f));
+
+    asteroids.push_back(suba);
+  }
+
+  delete a;
 }

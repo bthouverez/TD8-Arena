@@ -21,7 +21,7 @@ public:
     
     const float vertices[6] = { -1.0f, 0.0f, 0.0f, 
                                 1.0f, 0.0f, 0.0f }; // 2 points (laser is x-axis aligned)
-    float colors[6] = { color.r, color.g, color.b, 0.92f, 1.0f, 1.0f};
+    float colors[6] = { color.r, color.g, color.b, 0.5f*(color.r + 1.0f), 0.5f*(color.g + 1.0f), 0.5f*(color.b + 1.0f)};
 
     glGenVertexArrays(1, &m_vao);
     glBindVertexArray(m_vao);

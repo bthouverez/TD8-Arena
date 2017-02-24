@@ -22,7 +22,7 @@ public:
 	    {
 	        // done the 1st time only
 	        // Normal
-	        std::vector<float> n({0,0,1});
+	        std::vector<float> n({0,0,-1});
 
 	        // prepare vertices coordinates and color
 	        for(int i = 0; i < patternWidth; i++){
