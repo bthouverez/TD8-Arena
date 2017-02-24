@@ -81,6 +81,8 @@ float GAME_SCALE;
 
 void explodeAsteroid(std::list<Asteroid*>::iterator & it, std::list<Asteroid*> & asteroids, const std::vector<RenderableAsteroid*> & renderable_asteroids);
 
+void updateLasers(std::list<Laser*> & lasers, const Transform & PV);
+
 
 /////////// MAIN ///////////////
 
@@ -132,11 +134,20 @@ int main(int argc, char** argv)
   cam.frustum( width, height );
 
   
+  glm::mat4 PV = cam.projection() * cam.view() * cam.gtoc();
+  Transform transform_PV(
+    PV[0][0], PV[1][0], PV[2][0], PV[3][0],
+    PV[0][1], PV[1][1], PV[2][1], PV[3][1],
+    PV[0][2], PV[1][2], PV[2][2], PV[3][2],
+    PV[0][3], PV[1][3], PV[2][3], PV[3][3]
+  );
+
   ////////// Ship //////////
 
   RenderableEntity renderable_ship;
   renderable_ship.loadOBJ("data/object/tie.obj");
   GameEntity ship;
+  ship.init();
   ship.setRenderableEntityID(renderable_ship.getID());
   ship.setPosition(Point(6.0 * GAME_SCALE,4.0 * GAME_SCALE,-2*GAME_SCALE));// position de départ du vaisseau
   ship.rotateX(90.0f, false);// orientation de départ
@@ -219,7 +230,7 @@ int main(int argc, char** argv)
 
   while(win->isActive())
   {
-    ////////// Joystick values //////////
+  ////////// Joystick values //////////
 
     lir.Update();    
     float Height =  lir.GetHeight();
@@ -232,10 +243,51 @@ int main(int argc, char** argv)
      "Speed " << Speed << std::endl <<
      "Direction " << Direction << std::endl <<
      "Shoot " << Shoot << std::endl << std::endl;*/
+     
+     
+   
 
     ////////// Update ship position //////////
+    
+    // Ship goes up
+    if(Height > 0.0 and Height > 0.6) { 
+      ship.setPosition(ship.getPosition() + Vector(0.0, 0.0, -10.0));
+    // Ship goes down
+    } else if(Height > 0.0 and Height < 0.4) { 
+      ship.setPosition(ship.getPosition() + Vector(0.0, 0.0, 10.0));
+    }
 
-    // TODO
+    if(Speed > 0.15) {
+      //ship.Rotation X ? Y ?
+      ship.accelerate(Speed);
+    } else if(Speed < -0.15) {
+      ship.accelerate(Speed);
+    }
+
+    if(Direction > 0.15) {
+      ship.rotateZ(1, true);
+    } else if(Direction < -0.15) {
+      ship.rotateZ(-1, true);
+    }
+
+    ship.update(100.0f*1.0f/60.0f);
+
+    // CRASHHHH au sol
+    Point p = ship.getPosition();
+    if(p.z > 0.0) {      
+      ship.setPosition(Point(p.x, p.y, 0.0));
+      ship.setSpeed(0.0);
+    }
+
+    // Arena limits:
+    Point q = transform_PV(p);
+    if (q.x < -0.96f or q.x > 0.96f or q.y < -0.96f or q.y > 0.96f or q.z < -0.96f or q.z  > 0.96f)
+    {
+      ship.setSpeed(0.0f);
+    }
+
+
+    ////////// Update asteroids position //////////
 
     // Test explode asteroid:
     if (rand() %64 == 0)
@@ -248,7 +300,7 @@ int main(int argc, char** argv)
           explodeAsteroid(it, asteroids, renderable_asteroids);
           break;
         }
-      printf("EXPLODE!\n");
+      //printf("EXPLODE!\n");
     }
 
     for (auto a : asteroids)
@@ -257,7 +309,7 @@ int main(int argc, char** argv)
     }
 
     // test tir:
-    if (rand() % 32 == 0)
+    if (Shoot)
     {
       Laser * laser = new Laser;
       laser->init();
@@ -270,10 +322,9 @@ int main(int argc, char** argv)
       //printf("SHOOT!\n");
     }
 
-    for (auto l : lasers)
-    {      
-      l->update(100.0f*1.0f/60.0f);
-    }
+    // Update lasers:
+    updateLasers(lasers, transform_PV);
+    
 
     ////////// Background Update //////////
 
@@ -302,7 +353,7 @@ int main(int argc, char** argv)
     glEnable(GL_DEPTH_TEST);
     prog = renderable_program.getProgramID();
     glUseProgram(prog);
-    glUniformMatrix4fv(glGetUniformLocation(prog,"PV"), 1, GL_FALSE, &((cam.projection() * cam.view() * cam.gtoc())[0][0]));
+    glUniformMatrix4fv(glGetUniformLocation(prog,"PV"), 1, GL_FALSE, &(PV[0][0]));
     glUniformMatrix4fv(glGetUniformLocation(prog,"Model"), 1, GL_TRUE, Identity().buffer());
     glUniform3f(glGetUniformLocation(prog,"lightPosition"), 40 * GAME_SCALE, 0 * GAME_SCALE, -40 * GAME_SCALE);
     glUniform3f(glGetUniformLocation(prog,"lightColor"), 1.0,1.0,1.0);
@@ -397,3 +448,23 @@ void explodeAsteroid(std::list<Asteroid*>::iterator & it, std::list<Asteroid*> &
 
   delete a;
 }
+
+void updateLasers(std::list<Laser*> & lasers, const Transform & PV)
+{
+  std::vector<std::list<Laser*>::iterator> cleanlist;
+
+  for (std::list<Laser*>::iterator it = lasers.begin(); it != lasers.end(); ++it)
+  {      
+    (*it)->update(100.0f*1.0f/60.0f);
+    Point p = (*it)->getPosition();
+    Point q = PV(p);
+    if (q.x < -1.0f or q.x > 1.0f or q.y < -1.0f or q.y > 1.0f or q.z < -1.0f or q.z  > 1.0f)
+      cleanlist.push_back(it);    
+  }
+
+  if (!cleanlist.empty())
+    printf("Removed %d lasers !\n", (int)cleanlist.size());
+  for (auto it: cleanlist)
+    lasers.erase(it);
+}
+
