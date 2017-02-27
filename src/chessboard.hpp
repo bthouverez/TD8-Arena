@@ -42,10 +42,10 @@ public:
 	                std::vector<float> p3({i1,j2,0}); // Bottom left
 	                std::vector<float> p4({i2,j2,0}); // Bottom right
 
-	                std::vector<float> t1({i1/xmax,j1/ymax}); // Texcoord P1
-	                std::vector<float> t2({i2/xmax,j1/ymax}); // Texcoord P2
-	                std::vector<float> t3({i1/xmax,j2/ymax}); // Texcoord P3
-	                std::vector<float> t4({i2/xmax,j2/ymax}); // Texcoord P4
+	                std::vector<float> t1({0,0}); // Texcoord P1
+	                std::vector<float> t2({1,0}); // Texcoord P2
+	                std::vector<float> t3({0,1}); // Texcoord P3
+	                std::vector<float> t4({1,1}); // Texcoord P4
 
 	                /*    p1 ___ p2
 	                 *      |\  |
