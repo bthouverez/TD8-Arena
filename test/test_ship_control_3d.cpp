@@ -188,7 +188,7 @@ int main(int argc, char** argv)
 
     a->setRenderableEntityID(ra->getID());        
     a->setPosition(pos);  
-    a->setScale(GAME_SCALE);  
+    a->setScale(GAME_SCALE*3.0);  
 
     asteroids.push_back(a);
   }
@@ -251,24 +251,25 @@ int main(int argc, char** argv)
     
     // Ship goes up
     if(Height > 0.0 and Height > 0.6) { 
-      ship.setPosition(ship.getPosition() + Vector(0.0, 0.0, -10.0));
+      ship.setPosition(ship.getPosition() + Vector(0.0, 0.0, -15.0));
     // Ship goes down
     } else if(Height > 0.0 and Height < 0.4) { 
-      ship.setPosition(ship.getPosition() + Vector(0.0, 0.0, 10.0));
+      ship.setPosition(ship.getPosition() + Vector(0.0, 0.0, 15.0));
     }
 
-    if(Speed > 0.15) {
+    if(Speed > 0.25) {
       //ship.Rotation X ? Y ?
-      ship.accelerate(Speed);
+      ship.accelerate(100*Speed);
     } else if(Speed < -0.15) {
-      ship.accelerate(Speed);
+      ship.accelerate(100*Speed);
     }
 
-    if(Direction > 0.15) {
-      ship.rotateZ(1, true);
-    } else if(Direction < -0.15) {
-      ship.rotateZ(-1, true);
+    if(Direction > 0.35) {
+      ship.rotateZ(2, true);
+    } else if(Direction < -0.35) {
+      ship.rotateZ(-2, true);
     }
+
 
     ship.update(100.0f*1.0f/60.0f);
 
