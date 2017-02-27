@@ -26,7 +26,7 @@ void explodeAsteroid(std::list<Asteroid*>::iterator & it, std::list<Asteroid*> &
 
 void updateLasers(std::list<Laser*> & lasers, const Transform & PV);
 
-void shipCollide(GameEntity ** ship, uint64 id);
+void resetShip(GameEntity ** ship, uint64 id);
 
 
 /////////// MAIN ///////////////
@@ -160,14 +160,23 @@ int main(int argc, char** argv)
     return -1;
   GLuint laserprog = laserprogram.getProgramID();
   Shader background_program("data/shader/screenquad.vertex.glsl", "data/shader/screenquad.fragment.glsl");
+  Shader gameover_program("data/shader/gameover.vertex.glsl", "data/shader/gameover.fragment.glsl");
   Shader renderable_program("data/shader/default_mesh.vertex.glsl", "data/shader/default_mesh.fragment.glsl");
-  if (!background_program.init() || !renderable_program.init())
+  if (!background_program.init() || !renderable_program.init() || !gameover_program.init())
   {
     std::cout << "Can not load shader programs ..." << std::endl;
     exit(1);
   }
 
+  bool b_coll = false;
+  int cpt_coll = -1;
+
   int cpt_laser = 50;
+
+  // ////////// GAME OVER QUAD //////////
+  ScreenQuad gameover;
+  gameover.init();
+  gameover.loadTexture("data/texture/game_over_red.png", GL_RGBA8);
 
   while(win->isActive())
   {
@@ -274,6 +283,7 @@ int main(int argc, char** argv)
     for (auto it: clean)
       asteroids.erase(it);
 
+
     // Test Collision asteroides:
     float shipRadius = renderable_ship.getBoundingRadius() * ship->getScale();
     Point shipPos = ship->getPosition();
@@ -284,7 +294,8 @@ int main(int argc, char** argv)
       float dist = distance(shipPos, p);
       if (dist < shipRadius + asteroidRadius)
       {
-        shipCollide(&ship, renderable_ship.getID());
+        cpt_coll = 0;
+        b_coll = true;
         asteroids.erase(it);
         break;
       }  
@@ -337,15 +348,15 @@ int main(int argc, char** argv)
     glUseProgram(0);
 
     ////////// Renderable draw //////////
-
     glEnable(GL_DEPTH_TEST);
     prog = renderable_program.getProgramID();
     glUseProgram(prog);
     glUniformMatrix4fv(glGetUniformLocation(prog,"PV"), 1, GL_FALSE, &(PV[0][0]));
-    glUniformMatrix4fv(glGetUniformLocation(prog,"Model"), 1, GL_TRUE, Identity().buffer());
     glUniform3f(glGetUniformLocation(prog,"lightPosition"), 40 * GAME_SCALE, 0 * GAME_SCALE, -40 * GAME_SCALE);
     glUniform3f(glGetUniformLocation(prog,"lightColor"), 1.0,1.0,1.0);
     glUniform3f(glGetUniformLocation(prog,"cameraPosition"), cam.position().x,cam.position().y,cam.position().z);
+
+    glUniformMatrix4fv(glGetUniformLocation(prog,"Model"), 1, GL_TRUE, Identity().buffer());
     
     glActiveTexture(GL_TEXTURE0 + 0);
     glBindTexture(GL_TEXTURE_2D, chess.getTexture());
@@ -356,7 +367,8 @@ int main(int argc, char** argv)
     glUniform1i(glGetUniformLocation(prog, "use_texture"), 0);
 
     glUniformMatrix4fv(glGetUniformLocation(prog, "Model"), 1, GL_TRUE, ship->getModelMatrix().buffer());
-    renderable_ship.draw();
+    
+    if(!b_coll) renderable_ship.draw();
     
     for (auto a: asteroids)
     {      
@@ -392,6 +404,25 @@ int main(int argc, char** argv)
           renderable_lasers[j]->draw();          
           break;
         } 
+    }
+
+    if(b_coll)
+    {
+      glUseProgram(gameover_program.getProgramID());
+      glDisable(GL_DEPTH_TEST);
+      glActiveTexture(GL_TEXTURE0 + 0);
+      glBindTexture(GL_TEXTURE_2D, gameover.getTexture());
+      glUniform1i(glGetUniformLocation(gameover_program.getProgramID(), "image"), 0);
+      gameover.draw();
+      glBindTexture(GL_TEXTURE_2D,0);
+      glUseProgram(0);
+
+      if(cpt_coll > 120) {
+        resetShip(&ship, renderable_ship.getID());
+        b_coll = false;
+      } else {
+        cpt_coll++;
+      }
     }
 
     ////////// Update Window //////////
@@ -464,7 +495,7 @@ void updateLasers(std::list<Laser*> & lasers, const Transform & PV)
     lasers.erase(it);
 }
 
-void shipCollide(GameEntity ** ship, uint64 id)
+void resetShip(GameEntity ** ship, uint64 id)
 {
   *ship = new GameEntity;
   (*ship)->init();

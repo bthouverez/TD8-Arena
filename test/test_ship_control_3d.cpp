@@ -284,6 +284,7 @@ int main(int argc, char** argv)
       float dist = distance(shipPos, p);
       if (dist < shipRadius + asteroidRadius)
       {
+        sleep(5);
         shipCollide(&ship, renderable_ship.getID());
         asteroids.erase(it);
         break;
@@ -466,6 +467,7 @@ void updateLasers(std::list<Laser*> & lasers, const Transform & PV)
 
 void shipCollide(GameEntity ** ship, uint64 id)
 {
+
   *ship = new GameEntity;
   (*ship)->init();
   (*ship)->setRenderableEntityID(id);
