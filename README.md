@@ -10,15 +10,15 @@
 ## Le projet ##
 
 Notre projet consiste en un mini-jeu où il s'agit de controller un vaisseau et de détruire des astéroides. 
-Le projet utilise une caméra et à l'aide d'une mire de calibrage fixée au sol, elle décrit le repère de notre monde 3D.
-Nous avons placé un vaisseau au niveau de cette mire qui peut être controlé grâce à un LeapMotion.
+Le projet utilise une caméra et à l'aide d'une mire de calibrage fixée au sol, elle décrit le repère du monde 3D dans lequel évolue le vaisseau.
+Nous avons placé ce vaisseau au niveau de la mire, il peut être controlé grâce à un LeapMotion.
 
 ## Contrôle du vaisseau ##
  
-Le vaisseau est donc controlable à l'aide du LeapMotion: en mettant la main droite à plat au dessus du LeapMotion, le vaisseau adoptera une position stationaire. Il est alors bouger selon trois contrôles:
-* la hauteur: gérée grâce à la hauteur de la main (lever la main fera prendre de l'altitude au vaisseau et inversement)
-* la vitesse: le vaisseau ne peut qu'avancer grâce à une inclinaison de la main vers l'avant (incliner vers l'arrière ou revenir en position stationaire arrêtera le vaisseau)
-* la direction: le vaisseau peut tourner à droite et à gauche grace à une rotation du poignet (par rapport à l'axe de l'avant-bras)
+Le vaisseau est donc contrôlable à l'aide du LeapMotion: en mettant la main droite à plat au dessus, le vaisseau adopte une position stationnaire. Il est alors possible de le faire bouger selon trois contrôles:
+* la hauteur: gérée grâce à la hauteur de la main par rapport au LeapMotion (lever la main fera prendre de l'altitude au vaisseau et inversement).
+* la vitesse: le vaisseau ne peut qu'avancer grâce à une inclinaison de la main vers l'avant (incliner vers l'arrière ou revenir en position stationaire arrêtera le vaisseau).
+* la direction: le vaisseau peut tourner à droite et à gauche grâce à une rotation du poignet (par rapport à l'axe de l'avant-bras).
 
 ## Compilation et exécution du projet ##
 
@@ -37,7 +37,7 @@ Il faut aussi installer le SDK du LeapMotion: télécharger le SDK (https://deve
 
 * sudo dpkg --install Leap-*-x64.deb
 
-Le projet contient différents programmes de test qui sont tous construits lorsque la commande 'make' est appelée dans la racine du projet. On retrouve notamment parmis ces tests un test_calib permettant de calibrer une caméra à l'aide d'une mire et d'enregistrer les paramètres intrinsèques relatifs à cette caméra dans un fichier texte.
+Le projet contient différents programmes de test qui sont tous construits lorsque la commande 'make' est appelée depuis la racine du projet. On retrouve notamment un test_calib permettant de calibrer une caméra à l'aide d'une mire et d'enregistrer les paramètres intrinsèques relatifs à cette caméra dans un fichier texte.
 
 Le programme principal s'appelle TD8_ARENA.
 
@@ -51,8 +51,7 @@ Pour une bonne exécution du programme, il est conseillé d'effectuer une calibr
 * premake4 gmake
 * make test_calib TD8_ARENA config=release64 -j8
 * ./bin/test_calib # affiche les paramètres à donner au programme
-* ./bin/test_calib 1920 1080 60 10 7 25 40 data/camera/i ntrinsics_guillou.txt 1 
-* 
+* ./bin/test_calib 1920 1080 60 10 7 25 40 data/camera/intrinsics_guillou.txt 1 
 * ./bin/TD8_ARENA 1920 1080 60 10 7 25 data/camera/intrinsics_guillou.txt 1
 
 ![alt tag](http://bthouverez.fr/docs/HEADSHOT_guillou.png)
