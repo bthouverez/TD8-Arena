@@ -83,7 +83,7 @@ void explodeAsteroid(std::list<Asteroid*>::iterator & it, std::list<Asteroid*> &
 
 void updateLasers(std::list<Laser*> & lasers, const Transform & PV);
 
-void shipCollide(GameEntity & ship);
+void shipCollide(GameEntity ** ship, uint64 id);
 
 
 /////////// MAIN ///////////////
@@ -148,13 +148,13 @@ int main(int argc, char** argv)
 
   RenderableEntity renderable_ship;
   renderable_ship.loadOBJ("data/object/tie.obj");
-  GameEntity ship;
-  ship.init();
-  ship.setRenderableEntityID(renderable_ship.getID());
-  ship.setPosition(Point(6.0 * GAME_SCALE,4.0 * GAME_SCALE,-2*GAME_SCALE));// position de départ du vaisseau
-  ship.rotateX(90.0f, false);// orientation de départ
-  ship.setMovingDirection(Vector(0.0f, -1.0f, 0.0f));
-  ship.setScale(GAME_SCALE);
+  GameEntity * ship = new GameEntity();
+  ship->init();
+  ship->setRenderableEntityID(renderable_ship.getID());
+  ship->setPosition(Point(6.0 * GAME_SCALE,4.0 * GAME_SCALE,-2*GAME_SCALE));// position de départ du vaisseau
+  ship->rotateX(90.0f, false);// orientation de départ
+  ship->setMovingDirection(Vector(0.0f, -1.0f, 0.0f));
+  ship->setScale(GAME_SCALE);
 
   ////////// Lasers //////////
   std::vector<RenderableLaser*> renderable_lasers;
@@ -257,8 +257,8 @@ int main(int argc, char** argv)
       laser->setRenderableEntityID(renderable_lasers[0]->getID());
       laser->setLength(4.0f * GAME_SCALE);
       laser->setSpeed(0.4f * GAME_SCALE);      
-      laser->setPosition(ship.getPosition() + 2.0f*GAME_SCALE * ship.getMovingDirection());      
-      laser->setMovingDirection(ship.getMovingDirection());
+      laser->setPosition(ship->getPosition() + 2.0f*GAME_SCALE * ship->getMovingDirection());      
+      laser->setMovingDirection(ship->getMovingDirection());
       lasers.push_back(laser);    
       //printf("SHOOT!\n");
     }
@@ -267,38 +267,38 @@ int main(int argc, char** argv)
 
     // Ship goes up
     if(Height > 0.0 and Height > 0.6) { 
-      ship.setPosition(ship.getPosition() + Vector(0.0, 0.0, -15.0));
+      ship->setPosition(ship->getPosition() + Vector(0.0, 0.0, -15.0));
     // Ship goes down
     } else if(Height > 0.0 and Height < 0.4) { 
-      ship.setPosition(ship.getPosition() + Vector(0.0, 0.0, 15.0));
+      ship->setPosition(ship->getPosition() + Vector(0.0, 0.0, 15.0));
     }
 
     if(Speed > 0.25) {
-      //ship.Rotation X ? Y ?
-      ship.accelerate(100*Speed);
+      //ship->Rotation X ? Y ?
+      ship->accelerate(100*Speed);
     } else if(Speed < -0.15) {
-      ship.accelerate(100*Speed);
+      ship->accelerate(100*Speed);
     }
 
     if(Direction > 0.35) {
-      ship.rotateZ(2, true);
+      ship->rotateZ(2, true);
     } else if(Direction < -0.35) {
-      ship.rotateZ(-2, true);
+      ship->rotateZ(-2, true);
     }
 
-    ship.update(100.0f*1.0f/60.0f);
+    ship->update(100.0f*1.0f/60.0f);
 
     // CRASHHHH au sol
-    Point p = ship.getPosition();
+    Point p = ship->getPosition();
     if(p.z > 0.0) {      
-      ship.setPosition(Point(p.x, p.y, 0.0));
-      ship.setSpeed(0.0);
+      ship->setPosition(Point(p.x, p.y, 0.0));
+      ship->setSpeed(0.0);
     }
     // Arena limits:
     Point q = transform_PV(p);
     if (q.x < -0.96f or q.x > 0.96f or q.y < -0.96f or q.y > 0.96f or q.z < -0.96f or q.z  > 0.96f)
     {
-      ship.setSpeed(0.0f);
+      ship->setSpeed(0.0f);
     }
 
     
@@ -310,8 +310,8 @@ int main(int argc, char** argv)
     }
 
     // Test Collision asteroides:
-    float shipRadius = renderable_ship.getBoundingRadius() * ship.getScale();
-    Point shipPos = ship.getPosition();
+    float shipRadius = renderable_ship.getBoundingRadius() * ship->getScale();
+    Point shipPos = ship->getPosition();
     for (auto it=asteroids.begin(); it != asteroids.end(); ++it)
     {
       float asteroidRadius = (*it)->getBoundingRadius();
@@ -319,7 +319,7 @@ int main(int argc, char** argv)
       float dist = distance(shipPos, p);
       if (dist < shipRadius + asteroidRadius)
       {
-        shipCollide(ship);
+        shipCollide(&ship, renderable_ship.getID());
       }  
     }
 
@@ -384,7 +384,7 @@ int main(int argc, char** argv)
     glUniform3f(glGetUniformLocation(prog,"cameraPosition"), cam.position().x,cam.position().y,cam.position().z);
     chess.draw();
 
-    glUniformMatrix4fv(glGetUniformLocation(prog, "Model"), 1, GL_TRUE, ship.getModelMatrix().buffer());
+    glUniformMatrix4fv(glGetUniformLocation(prog, "Model"), 1, GL_TRUE, ship->getModelMatrix().buffer());
     renderable_ship.draw();
     
     for (auto a: asteroids)
@@ -492,9 +492,13 @@ void updateLasers(std::list<Laser*> & lasers, const Transform & PV)
     lasers.erase(it);
 }
 
-void shipCollide(GameEntity & ship)
+void shipCollide(GameEntity ** ship, uint64 id)
 {
-  ship.setPosition(Point(6.0 * GAME_SCALE,4.0 * GAME_SCALE,-2*GAME_SCALE));// position de départ du vaisseau
-  ship.rotateX(90.0f, false);// orientation de départ
-  ship.setMovingDirection(Vector(0.0f, -1.0f, 0.0f));
+  *ship = new GameEntity;
+  (*ship)->init();
+  (*ship)->setRenderableEntityID(id);
+  (*ship)->setPosition(Point(6.0 * GAME_SCALE,4.0 * GAME_SCALE,-2*GAME_SCALE));// position de départ du vaisseau
+  (*ship)->rotateX(90.0f, false);// orientation de départ
+  (*ship)->setMovingDirection(Vector(0.0f, -1.0f, 0.0f));
+  (*ship)->setScale(GAME_SCALE);
 }

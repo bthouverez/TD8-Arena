@@ -24,7 +24,7 @@ public:
     m_position = Point(0,0,0);
     m_direction = Vector(1,0,0);
     m_orientation = Identity();
-    m_speed = 0;
+    m_speed = 0.0;
     m_speed_max = 10.0f;
     m_scale = 1;
     return true;
@@ -48,6 +48,8 @@ public:
   void setOrientation(const Transform & o){ m_orientation = o; }
 
   void setSpeed(float s) { m_speed = s; }
+
+  float getSpeed() { return m_speed; }
 
   void setMaxSpeed(float smax) { m_speed_max = smax; }
 

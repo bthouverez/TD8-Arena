@@ -607,7 +607,7 @@ bool RenderableAsteroid::init()
     colors[3*i + 1] = gray;
     colors[3*i + 2] = gray;
   }
-  
+
   // GL :
   m_usetexture = false;
   glGenVertexArrays(1, &m_vao);
