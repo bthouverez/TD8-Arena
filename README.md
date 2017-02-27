@@ -1,9 +1,9 @@
 ### TD8-Arena ###
 
-Yann Cortial
-Basile Fraboni
-Bastien Thouverez
-Peter Vystavel
+* Yann Cortial
+* Basile Fraboni
+* Bastien Thouverez
+* Peter Vystavel
 
 ![alt tag](http://bthouverez.fr/docs/TD8ARENA.png)
 
