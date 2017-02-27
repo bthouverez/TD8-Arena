@@ -5,7 +5,7 @@
 * Bastien Thouverez
 * Peter Vystavel
 
-![alt tag](http://bthouverez.fr/docs/TD8ARENA.png)
+![alt tag](http://bthouverez.fr/docs/TD8ARENA2.png)
 
 ## Le projet ##
 
