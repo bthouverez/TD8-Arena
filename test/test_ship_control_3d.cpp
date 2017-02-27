@@ -169,7 +169,7 @@ int main(int argc, char** argv)
 
   ////////// ASTEROID //////////
 
-  #define NB_ASTEROIDS  16
+  #define NB_ASTEROIDS  32
   #define NB_ASTEROID_MODELS  7
   std::vector<RenderableAsteroid *> renderable_asteroids;
   for (int i=0; i < NB_ASTEROID_MODELS; ++i)
@@ -256,7 +256,7 @@ int main(int argc, char** argv)
       laser->init();
       laser->setRenderableEntityID(renderable_lasers[0]->getID());
       laser->setLength(4.0f * GAME_SCALE);
-      laser->setSpeed(0.4f * GAME_SCALE);      
+      laser->setSpeed(GAME_SCALE);      
       laser->setPosition(ship->getPosition() + 2.0f*GAME_SCALE * ship->getMovingDirection());      
       laser->setMovingDirection(ship->getMovingDirection());
       lasers.push_back(laser);    
@@ -290,8 +290,8 @@ int main(int argc, char** argv)
 
     // CRASHHHH au sol
     Point p = ship->getPosition();
-    if(p.z > 0.0) {      
-      ship->setPosition(Point(p.x, p.y, 0.0));
+    if(p.z > -2*GAME_SCALE) {      
+      ship->setPosition(Point(p.x, p.y, -2*GAME_SCALE));
       ship->setSpeed(0.0);
     }
     // Arena limits:
@@ -304,10 +304,24 @@ int main(int argc, char** argv)
     
     ////////// Update asteroids //////////
 
-    for (auto a : asteroids)
+    std::vector<std::list<Asteroid*>::iterator> clean;
+    for (auto it=asteroids.begin(); it != asteroids.end(); ++it)
     {      
-      a->update(100.0f*1.0f/60.0f);
+      (*it)->update(100.0f*1.0f/60.0f);
+
+      Point p = (*it)->getPosition();
+      if(p.z > 0.0) {      
+        (*it)->setPosition(Point(p.x, p.y, 0.0));
+        (*it)->setSpeed(0.0);
+      }
+      // Arena limits:
+      Point q = transform_PV(p);
+      if (q.x < -1.0f or q.x > 1.0f or q.y < -1.0f or q.y > 1.0f or q.z < -1.0f or q.z  > 1.0f) {
+        clean.push_back(it);
+      }
     }
+    for (auto it: clean)
+      asteroids.erase(it);
 
     // Test Collision asteroides:
     float shipRadius = renderable_ship.getBoundingRadius() * ship->getScale();
@@ -320,6 +334,8 @@ int main(int argc, char** argv)
       if (dist < shipRadius + asteroidRadius)
       {
         shipCollide(&ship, renderable_ship.getID());
+        asteroids.erase(it);
+        break;
       }  
     }
 
@@ -332,11 +348,13 @@ int main(int argc, char** argv)
       for (auto it = asteroids.begin(); it != asteroids.end(); ++it)
       {
         float asteroidRadius = (*it)->getBoundingRadius();
-        Point asteroidPos = (*it)->getPosition();
+        Point asteroidPos = (*it)->getPosition(); 
         if (distance(asteroidPos, lasertip) < asteroidRadius * 0.8f) 
         {
-          explodeAsteroid(it, asteroids, renderable_asteroids);          
+          explodeAsteroid(it, asteroids, renderable_asteroids);   
+          //std::cout << "EXPLODE " << std::endl;       
           cleanlist.push_back(laser_it);
+          break;
         }
       }      
     }        
@@ -467,8 +485,8 @@ void explodeAsteroid(std::list<Asteroid*>::iterator & it, std::list<Asteroid*> &
     
     suba->setPosition(a->getPosition());
     suba->setMovingDirection(direction);
-    suba->setSpeed(getRandomFloat(0.0f, 0.02f) * GAME_SCALE);
-    suba->setScale(a->getScale() / getRandomFloat(2.0f, 4.0f));
+    suba->setSpeed(getRandomFloat(0.0f, 0.08f) * GAME_SCALE);
+    suba->setScale(a->getScale() / getRandomFloat(2.0f, 3.0f));
 
     asteroids.push_back(suba);
   }
@@ -489,8 +507,8 @@ void updateLasers(std::list<Laser*> & lasers, const Transform & PV)
       cleanlist.push_back(it);    
   }
 
-  if (!cleanlist.empty())
-    printf("Removed %d lasers !\n", (int)cleanlist.size());
+  //if (!cleanlist.empty())
+  //  printf("Removed %d lasers !\n", (int)cleanlist.size());
   for (auto it: cleanlist)
     lasers.erase(it);
 }
