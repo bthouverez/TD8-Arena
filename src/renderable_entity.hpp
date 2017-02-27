@@ -24,6 +24,8 @@ public:
 
   GLuint getTexture() const { return m_texture; }
 
+  float getBoundingRadius() { return m_boundingRadius; }
+
   void setTexture(GLuint texture){ m_texture = texture; }  
 
   bool loadTexture(const std::string & filename, GLuint texel_type);
@@ -34,6 +36,7 @@ public:
 protected:
   GLuint m_vao, m_vbo, m_ibo = 0, m_texture = 0;
   int m_num_indices = -1, m_num_vertices;
+  float m_boundingRadius = 1.0f;
   bool m_usetexture = false, m_useindex = false;
 };
 #endif

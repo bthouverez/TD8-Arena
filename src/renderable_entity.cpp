@@ -149,6 +149,18 @@ bool RenderableEntity::loadOBJ(const std::string & filename)
   glBindVertexArray(0);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+
+  // Compute Mesh bounding Radius:
+  float * vertices = (float*)mesh.vertex_buffer();
+  m_boundingRadius = 0.0f;
+  for (int i=0; i < m_num_vertices; ++i)
+  {
+    float d = std::sqrt(vertices[3*i+0]*vertices[3*i+0] + vertices[3*i+1]*vertices[3*i+1] + vertices[3*i+2]*vertices[3*i+2]);
+    if (d > m_boundingRadius)
+      m_boundingRadius = d;
+  }
+
+  mesh.release();
   return true;
 }
 
