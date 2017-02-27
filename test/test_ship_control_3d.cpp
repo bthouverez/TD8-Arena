@@ -234,72 +234,78 @@ int main(int argc, char** argv)
   {
   ////////// Joystick values //////////
 
+
     lir.Update();    
-    float Height =  lir.GetHeight();
-    float Speed =  lir.GetSpeed();
-    float Direction =  lir.GetDirection();
-    bool Shoot =  lir.GetShoot();
+    if(lir.GetHand()) {
+       float Height =  lir.GetHeight();
+      float Speed =  lir.GetSpeed();
+      float Direction =  lir.GetDirection();
+      bool Shoot =  lir.GetShoot();
 
-    /*std::cout << 
-     "Height " << Height << std::endl <<
-     "Speed " << Speed << std::endl <<
-     "Direction " << Direction << std::endl <<
-     "Shoot " << Shoot << std::endl << std::endl;*/
-     
+      /*std::cout << 
+       "Height " << Height << std::endl <<
+       "Speed " << Speed << std::endl <<
+       "Direction " << Direction << std::endl <<
+       "Shoot " << Shoot << std::endl << std::endl;*/
+       
 
-    ////////// Update ship //////////
-    
-    // tir laser:
-    if (Shoot)
-    {
-      Laser * laser = new Laser;
-      laser->init();
-      laser->setRenderableEntityID(renderable_lasers[0]->getID());
-      laser->setLength(4.0f * GAME_SCALE);
-      laser->setSpeed(GAME_SCALE);      
-      laser->setPosition(ship->getPosition() + 2.0f*GAME_SCALE * ship->getMovingDirection());      
-      laser->setMovingDirection(ship->getMovingDirection());
-      lasers.push_back(laser);    
-      //printf("SHOOT!\n");
+      ////////// Update ship //////////
+      
+      // tir laser:
+      if (Shoot)
+      {
+        Laser * laser = new Laser;
+        laser->init();
+        laser->setRenderableEntityID(renderable_lasers[0]->getID());
+        laser->setLength(4.0f * GAME_SCALE);
+        laser->setSpeed(GAME_SCALE);      
+        laser->setPosition(ship->getPosition() + 2.0f*GAME_SCALE * ship->getMovingDirection());      
+        laser->setMovingDirection(ship->getMovingDirection());
+        lasers.push_back(laser);    
+        //printf("SHOOT!\n");
+      }
+      // Update lasers:
+      updateLasers(lasers, transform_PV);
+
+      // Ship goes up
+      if(Height > 0.0 and Height > 0.6) { 
+        ship->setPosition(ship->getPosition() + Vector(0.0, 0.0, -15.0));
+      // Ship goes down
+      } else if(Height > 0.0 and Height < 0.4) { 
+        ship->setPosition(ship->getPosition() + Vector(0.0, 0.0, 15.0));
+      }
+
+      if(Speed > 0.25) {
+        //ship->Rotation X ? Y ?
+        ship->accelerate(100*Speed);
+      } else if(Speed < -0.15) {
+        ship->accelerate(100*Speed);
+      }
+
+      if(Direction > 0.35) {
+        ship->rotateZ(2, true);
+      } else if(Direction < -0.35) {
+        ship->rotateZ(-2, true);
+      }
+
+      ship->update(100.0f*1.0f/60.0f);
+
+      // CRASHHHH au sol
+      Point p = ship->getPosition();
+      if(p.z > -2*GAME_SCALE) {      
+        ship->setPosition(Point(p.x, p.y, -2*GAME_SCALE));
+        ship->setSpeed(0.0);
+      }
+      // Arena limits:
+      Point q = transform_PV(p);
+      if (q.x < -0.96f or q.x > 0.96f or q.y < -0.96f or q.y > 0.96f or q.z < -0.96f or q.z  > 0.96f)
+      {
+        ship->setSpeed(0.0f);
+      }
+    } else {
+        ship->setSpeed(0.0f);      
     }
-    // Update lasers:
-    updateLasers(lasers, transform_PV);
-
-    // Ship goes up
-    if(Height > 0.0 and Height > 0.6) { 
-      ship->setPosition(ship->getPosition() + Vector(0.0, 0.0, -15.0));
-    // Ship goes down
-    } else if(Height > 0.0 and Height < 0.4) { 
-      ship->setPosition(ship->getPosition() + Vector(0.0, 0.0, 15.0));
-    }
-
-    if(Speed > 0.25) {
-      //ship->Rotation X ? Y ?
-      ship->accelerate(100*Speed);
-    } else if(Speed < -0.15) {
-      ship->accelerate(100*Speed);
-    }
-
-    if(Direction > 0.35) {
-      ship->rotateZ(2, true);
-    } else if(Direction < -0.35) {
-      ship->rotateZ(-2, true);
-    }
-
-    ship->update(100.0f*1.0f/60.0f);
-
-    // CRASHHHH au sol
-    Point p = ship->getPosition();
-    if(p.z > -2*GAME_SCALE) {      
-      ship->setPosition(Point(p.x, p.y, -2*GAME_SCALE));
-      ship->setSpeed(0.0);
-    }
-    // Arena limits:
-    Point q = transform_PV(p);
-    if (q.x < -0.96f or q.x > 0.96f or q.y < -0.96f or q.y > 0.96f or q.z < -0.96f or q.z  > 0.96f)
-    {
-      ship->setSpeed(0.0f);
-    }
+   
 
     
     ////////// Update asteroids //////////

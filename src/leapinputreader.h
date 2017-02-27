@@ -45,6 +45,7 @@ public:
     inline float GetSpeed()     { return m_speed; }
     inline float GetDirection() { return m_direction; }
     inline bool  GetShoot()     { return m_shoot; }
+    inline bool  GetHand()      { return m_hand; }
 
 protected:
 
@@ -55,6 +56,7 @@ protected:
     float m_speed = 0.f;
     float m_direction = 0.f;
     bool  m_shoot = false;
+    bool  m_hand = false; // présence de la main au dessus du leap ou non
 };
 
 #endif
