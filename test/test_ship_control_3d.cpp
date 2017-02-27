@@ -167,12 +167,15 @@ int main(int argc, char** argv)
     exit(1);
   }
 
+  int cpt_laser = 50;
+
   while(win->isActive())
   {
   ////////// Joystick values //////////
 
 
-    lir.Update();    
+    lir.Update();   
+
     if(lir.GetHand()) {
        float Height =  lir.GetHeight();
       float Speed =  lir.GetSpeed();
@@ -188,9 +191,12 @@ int main(int argc, char** argv)
 
       ////////// Update ship //////////
       
+      cpt_laser++;
+      
       // tir laser:
-      if (Shoot)
+      if (Shoot and cpt_laser > 30)
       {
+
         Laser * laser = new Laser;
         laser->init();
         laser->setRenderableEntityID(renderable_lasers[0]->getID());
@@ -198,11 +204,10 @@ int main(int argc, char** argv)
         laser->setSpeed(GAME_SCALE);      
         laser->setPosition(ship->getPosition() + 2.0f*GAME_SCALE * ship->getMovingDirection());      
         laser->setMovingDirection(ship->getMovingDirection());
-        lasers.push_back(laser);    
+        lasers.push_back(laser); 
+        cpt_laser = 0;  
         //printf("SHOOT!\n");
       }
-      // Update lasers:
-      updateLasers(lasers, transform_PV);
 
       // Ship goes up
       if(Height > 0.0 and Height > 0.6) { 
@@ -242,6 +247,9 @@ int main(int argc, char** argv)
     } else {
         ship->setSpeed(0.0f);      
     }
+
+      // Update lasers:
+      updateLasers(lasers, transform_PV);
    
 
     
