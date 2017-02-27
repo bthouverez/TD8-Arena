@@ -16,63 +16,6 @@
 #include <vector>
 #include <list>
 
-const GLchar *vert_shader =
-    "#version 330\n"
-    "layout(location = 0) in vec3 position;\n"
-    "layout(location = 1) in vec3 color;\n"
-    "out vec3 vcolor;\n"
-    "uniform mat4 MVP;\n"
-    "\n"
-    "void main()\n"
-    "{\n"
-    "    gl_Position = MVP * vec4(position, 1.0);\n"
-    "    vcolor = color;\n"
-    "}\n";
-
-  const GLchar *frag_shader =
-    "#version 330\n"
-    "in vec3 vcolor;\n"
-    "out vec4 color;\n"
-    "\n"
-    "void main() {\n"
-    "    color = vec4(vcolor, 0);\n"
-    "}\n";
-
-static GLuint compile_shader(GLenum type, const GLchar *source)
-{
-    GLuint shader = glCreateShader(type);
-    glShaderSource(shader, 1, &source, NULL);
-    glCompileShader(shader);
-    GLint param;
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &param);
-    if (!param) {
-        GLchar log[4096];
-        glGetShaderInfoLog(shader, sizeof(log), NULL, log);
-        fprintf(stderr, "error: %s: %s\n",
-                type == GL_FRAGMENT_SHADER ? "frag" : "vert", (char *) log);
-        exit(EXIT_FAILURE);
-    }
-    return shader;
-}
-
-static GLuint link_program(GLuint vert, GLuint frag)
-{
-    GLuint program = glCreateProgram();
-    glAttachShader(program, vert);
-    glAttachShader(program, frag);
-    glLinkProgram(program);
-    GLint param;
-    glGetProgramiv(program, GL_LINK_STATUS, &param);
-    if (!param) {
-        GLchar log[4096];
-        glGetProgramInfoLog(program, sizeof(log), NULL, log);
-        fprintf(stderr, "error: link: %s\n", (char *) log);
-        exit(EXIT_FAILURE);
-    }
-    return program;
-}
-
-
 //////////// GLOBALS ////////////
 
 float GAME_SCALE;
@@ -208,6 +151,7 @@ int main(int argc, char** argv)
 
   Chessboard chess;
   chess.init(chess_width, chess_height, chess_size);
+  chess.loadTexture("data/texture/floor.jpg", GL_RGB8);
 
   ////////// Shaders init //////////
 
@@ -222,13 +166,6 @@ int main(int argc, char** argv)
     std::cout << "Can not load shader programs ..." << std::endl;
     exit(1);
   }
-
-  GLuint vert = compile_shader(GL_VERTEX_SHADER, vert_shader);
-  GLuint frag = compile_shader(GL_FRAGMENT_SHADER, frag_shader);
-  GLuint program = link_program(vert, frag);
-  glDeleteShader(frag);
-  glDeleteShader(vert);
-
 
   while(win->isActive())
   {
@@ -384,6 +321,7 @@ int main(int argc, char** argv)
     glBindTexture(GL_TEXTURE_2D, quad.getTexture());
     glUniform1i(glGetUniformLocation(prog, "image"), 0);
     quad.draw();
+    glBindTexture(GL_TEXTURE_2D,0);
     glUseProgram(0);
 
     ////////// Renderable draw //////////
@@ -396,7 +334,14 @@ int main(int argc, char** argv)
     glUniform3f(glGetUniformLocation(prog,"lightPosition"), 40 * GAME_SCALE, 0 * GAME_SCALE, -40 * GAME_SCALE);
     glUniform3f(glGetUniformLocation(prog,"lightColor"), 1.0,1.0,1.0);
     glUniform3f(glGetUniformLocation(prog,"cameraPosition"), cam.position().x,cam.position().y,cam.position().z);
+    
+    glActiveTexture(GL_TEXTURE0 + 0);
+    glBindTexture(GL_TEXTURE_2D, chess.getTexture());
+    glUniform1i(glGetUniformLocation(prog, "tex"), 0);
+    glUniform1i(glGetUniformLocation(prog, "use_texture"), 1);
     chess.draw();
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glUniform1i(glGetUniformLocation(prog, "use_texture"), 0);
 
     glUniformMatrix4fv(glGetUniformLocation(prog, "Model"), 1, GL_TRUE, ship->getModelMatrix().buffer());
     renderable_ship.draw();
