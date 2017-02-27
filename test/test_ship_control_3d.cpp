@@ -296,9 +296,7 @@ int main(int argc, char** argv)
       }      
     }        
     for (auto it: cleanlist)
-      lasers.erase(it);
-
-        
+      lasers.erase(it);        
     
 
     ////////// Background Update //////////
@@ -382,12 +380,9 @@ int main(int argc, char** argv)
         } 
     }
 
-
     ////////// Update Window //////////
 
     win->refresh();
-
-
 
     ////////// Clean //////////
 
@@ -401,9 +396,6 @@ int main(int argc, char** argv)
 
   return 0;
 }
-
-
-
 
 void explodeAsteroid(std::list<Asteroid*>::iterator & it, std::list<Asteroid*> & asteroids, const std::vector<RenderableAsteroid*> & renderable_asteroids)
 {

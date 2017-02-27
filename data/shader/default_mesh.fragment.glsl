@@ -16,7 +16,6 @@ uniform vec3 cameraPosition;
 
 const float m_spec = 16.0;// exposant spéculaire (par défaut)
 
-
 void main()
 {	
 	vec3 color = frag_color;
