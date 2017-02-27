@@ -19,7 +19,7 @@ public:
     m_rotation_axis = normalize(Vector(getRandomFloat(-1,1), getRandomFloat(-1,1), getRandomFloat(-1,1)));
     m_rotation_speed = getRandomFloat(0, 0.2);
     m_scale = getRandomFloat(0.68, 2.7); 
-    m_boundingRadius = m_scale;    
+    m_boundingRadius = 1.0f;    
 
     return true;
   }
@@ -35,6 +35,9 @@ public:
 
   virtual void release() {}
 
+  float getBoundingRadius() const {
+    return m_scale;
+  }
 
 protected:
   Vector m_rotation_axis;
