@@ -66,6 +66,8 @@ void SampleListener2::onFrame(const Controller& controller) {
     << ", gestures: " << frame.gestures().count() << std::endl;
     */
     HandList hands = frame.hands();
+     std::cout 
+    << ", hands: " << frame.hands().count() << std::endl;
 
     for (HandList::const_iterator hl = hands.begin(); hl != hands.end(); ++hl) {
         // Get the first hand
