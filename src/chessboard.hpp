@@ -17,12 +17,16 @@ public:
 		static std::vector<float> VERTICES;
 	    static std::vector<float> COLORS;
 	    static std::vector<float> NORMALS;
+	    static std::vector<float> TEXCOORDS;
 
 	    if( VERTICES.empty() )
 	    {
 	        // done the 1st time only
 	        // Normal
 	        std::vector<float> n({0,0,-1});
+
+	        float xmax = (float)patternWidth * squareSize;
+	        float ymax = (float)patternHeight * squareSize;
 
 	        // prepare vertices coordinates and color
 	        for(int i = 0; i < patternWidth; i++){
@@ -37,6 +41,11 @@ public:
 	                std::vector<float> p2({i2,j1,0}); // Top right
 	                std::vector<float> p3({i1,j2,0}); // Bottom left
 	                std::vector<float> p4({i2,j2,0}); // Bottom right
+
+	                std::vector<float> t1({i1/xmax,j1/ymax}); // Texcoord P1
+	                std::vector<float> t2({i2/xmax,j1/ymax}); // Texcoord P2
+	                std::vector<float> t3({i1/xmax,j2/ymax}); // Texcoord P3
+	                std::vector<float> t4({i2/xmax,j2/ymax}); // Texcoord P4
 
 	                /*    p1 ___ p2
 	                 *      |\  |
@@ -53,6 +62,17 @@ public:
 	                VERTICES.insert(VERTICES.end(),p1.begin(),p1.end());
 	                VERTICES.insert(VERTICES.end(),p3.begin(),p3.end());
 	                VERTICES.insert(VERTICES.end(),p4.begin(),p4.end());
+
+	                /////// Texcoords ////////
+
+	                // Top Triangle
+	                TEXCOORDS.insert(TEXCOORDS.end(),t1.begin(),t1.end());
+	                TEXCOORDS.insert(TEXCOORDS.end(),t4.begin(),t4.end());
+	                TEXCOORDS.insert(TEXCOORDS.end(),t2.begin(),t2.end());
+	                // Bottom Triangle
+	                TEXCOORDS.insert(TEXCOORDS.end(),t1.begin(),t1.end());
+	                TEXCOORDS.insert(TEXCOORDS.end(),t3.begin(),t3.end());
+	                TEXCOORDS.insert(TEXCOORDS.end(),t4.begin(),t4.end());
 
 	                for(int t = 0; t < 6 ; t++)
 	                	NORMALS.insert(NORMALS.end(), n.begin(), n.end());
@@ -73,7 +93,7 @@ public:
 
   		m_num_vertices = VERTICES.size();
 	  	m_useindex = false;
-	  	m_usetexture = false;
+	  	m_usetexture = true;
 
 	  	glGenVertexArrays(1, &m_vao);
 	  	glBindVertexArray(m_vao);
@@ -83,7 +103,8 @@ public:
         glBufferData(	GL_ARRAY_BUFFER, 
         				VERTICES.size()*sizeof(VERTICES[0]) + 
         				COLORS.size()*sizeof(COLORS[0])	+
-        				NORMALS.size()*sizeof(NORMALS[0]), 
+        				NORMALS.size()*sizeof(NORMALS[0]) +
+        				TEXCOORDS.size()*sizeof(TEXCOORDS[0]), 
         				0, GL_STATIC_DRAW);
 
 
@@ -105,6 +126,12 @@ public:
   		glBufferSubData(GL_ARRAY_BUFFER, offset, size, NORMALS.data());
 	  	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)(offset));
 	  	glEnableVertexAttribArray(2);
+	  	// Texcoords
+  		offset += size;
+  		size = TEXCOORDS.size()*sizeof(TEXCOORDS[0]);
+  		glBufferSubData(GL_ARRAY_BUFFER, offset, size, TEXCOORDS.data());
+	  	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid*)(offset));
+	  	glEnableVertexAttribArray(3);
 	  	  
 	  	glBindVertexArray(0);
 	  	glBindBuffer(GL_ARRAY_BUFFER, 0);
