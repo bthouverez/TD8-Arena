@@ -324,28 +324,24 @@ int main(int argc, char** argv)
     }
 
     // Test explode asteroid:
-    auto laser_it = lasers.begin();
-    for (; laser_it != lasers.end(); ++laser_it)
+    
+    std::vector<std::list<Laser*>::iterator> cleanlist;
+    for (auto laser_it = lasers.begin(); laser_it != lasers.end(); ++laser_it)
     {
-      Point lasertip = (*laser_it)->getPosition() + (0.5f*(*laser_it)->getLength()) * (*laser_it)->getMovingDirection();
-      bool explode = false;
-      auto next_it = laser_it;
+      Point lasertip = (*laser_it)->getPosition() + (0.5f*(*laser_it)->getLength()) * (*laser_it)->getMovingDirection();      
       for (auto it = asteroids.begin(); it != asteroids.end(); ++it)
       {
         float asteroidRadius = (*it)->getBoundingRadius();
         Point asteroidPos = (*it)->getPosition();
         if (distance(asteroidPos, lasertip) < asteroidRadius * 0.8f) 
         {
-          explodeAsteroid(it, asteroids, renderable_asteroids);
-          next_it++;
-          lasers.erase(laser_it);
-          explode = true;
-          break;
+          explodeAsteroid(it, asteroids, renderable_asteroids);          
+          cleanlist.push_back(laser_it);
         }
-      }
-      if (explode)
-        laser_it = next_it;
+      }      
     }        
+    for (auto it: cleanlist)
+      lasers.erase(it);
 
         
     
@@ -451,6 +447,13 @@ void explodeAsteroid(std::list<Asteroid*>::iterator & it, std::list<Asteroid*> &
   Asteroid * a = *it;
   asteroids.erase(it);
 
+  if (a->getScale() < 0.1 * GAME_SCALE)
+  {// si l'asteroide est trop petit inutile de le fragmenter
+    delete a;
+    return;
+  }
+
+  // Fragmentation:
   int numa = 3 + rand() % 5;
   for (int j=0; j < numa; ++j)
   {
