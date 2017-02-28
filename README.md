@@ -44,7 +44,13 @@ Le programme principal s'appelle TD8_ARENA.
 
 ## En résumé ##
 
-Pour une bonne exécution du programme, il est conseillé d'effectuer une calibration de la caméra puis de lancer le programme. Voici un résumé des commandes utiles:
+Pour une bonne exécution du programme, il est conseillé d'effectuer une calibration de la caméra puis de lancer le programme. Il est aussi nécessaire de lancer le service leapd nécessaire au bon 
+fonctionnement du LeapMotion.
+Voici un résumé des commandes utiles:
+
+Dans une console à part ou en tâche de fond:
+* sudo leapd
+
 
 * git clone https://github.com/bthouverez/TD8-Arena
 * cd TD8-Arena
