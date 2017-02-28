@@ -51,13 +51,19 @@ Voici un résumé des commandes utiles:
 Dans une console à part ou en tâche de fond:
 * sudo leapd
 
-
+Dans la console principale:
 * git clone https://github.com/bthouverez/TD8-Arena
 * cd TD8-Arena
 * premake4 gmake
 * make test_calib TD8_ARENA config=release64 -j8
-* ./bin/test_calib # affiche les paramètres à donner au programme
+
+Pour afficher les paramètres à donner au programme:
+* ./bin/test_calib 
+
+Pour calibrer la caméra:
 * ./bin/test_calib 1920 1080 60 10 7 25 40 data/camera/intrinsics_guillou.txt 1 
+
+Pour exécuter le programme:
 * ./bin/TD8_ARENA 1920 1080 60 10 7 25 data/camera/intrinsics_guillou.txt 1
 
 ![alt tag](http://bthouverez.fr/docs/HEADSHOT_guillou.png)
